@@ -3,10 +3,9 @@ HOMEPAGE = "https://github.com/NXP/qoriq-edgescale-eds.git"
 LICENSE = "NXP-EULA"
 LIC_FILES_CHKSUM = "file://src/import/EULA.txt;md5=ac5425aaed72fb427ef1113a88542f89"
 
-SRC_URI = "git://github.com/NXP/qoriq-edgescale-eds.git;nobranch=1 \
-    file://0001-Add-Insecure-mode-for-common-platform.patch \
-"
-SRCREV = "90d4441324f60bfb1b66b2584f42fd613191d477"
+SRC_URI = "git://github.com/NXP/qoriq-edgescale-eds.git;protocol=https;nobranch=1"
+
+SRCREV = "7702aaeede6669f019cb77802d25ff831c5ff84d"
 
 DEPENDS = "\
            go-logrus  \
@@ -19,10 +18,8 @@ RDEPENDS_${PN} += " \
 "
 
 DEPENDS_append_qoriq-arm64 = "optee-client-qoriq secure-obj"
-DEPENDS_append_qoriq-arm = "optee-client-qoriq secure-obj"
 
 RDEPENDS_${PN}_append_qoriq-arm64 = "optee-client-qoriq secure-obj"
-RDEPENDS_${PN}_append_qoriq-arm = "optee-client-qoriq secure-obj"
 
 GO_IMPORT = "import"
 
@@ -46,7 +43,7 @@ export CROSS_COMPILE="${WRAP_TARGET_PREFIX}"
 export OPENSSL_PATH="${RECIPE_SYSROOT}/usr"
 export SECURE_OBJ_PATH="${RECIPE_SYSROOT}/usr"
 export OPTEE_CLIENT_EXPORT="${RECIPE_SYSROOT}/usr/"
-
+export GOVERSION = "1.9.7"
 
 do_compile() {
 	export GOARCH="${TARGET_GOARCH}"
@@ -66,7 +63,7 @@ do_compile() {
 	export CFLAGS=""
 	export LDFLAGS=""
         export CGO_CFLAGS="${BUILDSDK_CFLAGS} --sysroot=${STAGING_DIR_TARGET} ${TAGS}"
-        export CGO_LDFLAGS="${BUILDSDK_LDFLAGS} --sysroot=${STAGING_DIR_TARGET}"
+	export CGO_LDFLAGS="${BUILDSDK_LDFLAGS} --sysroot=${STAGING_DIR_TARGET}"
 	cd ${S}/src/import
       
 	oe_runmake all 
@@ -74,8 +71,8 @@ do_compile() {
 
 do_install() {
 	install -d ${D}/${bindir}
-        install -d ${D}/${includedir}/cert-agent
         install -d ${D}/${sysconfdir}
+        install -d ${D}/${includedir}/cert-agent
         cp -r ${S}/src/import/startup/env.sh ${D}/${bindir}
         cp -r ${S}/src/import/startup/startup.sh ${D}/${bindir}
         cp -r ${S}/src/import/startup/ota-updateSet ${D}/${bindir}
@@ -83,14 +80,9 @@ do_install() {
         cp -r ${S}/src/import/mq-agent/mq-agent ${D}/${bindir}
         cp -r ${S}/src/import/cert-agent/cert-agent ${D}/${bindir}
         cp -r ${S}/src/import/cert-agent/pkg ${D}/${includedir}/cert-agent/
-        cp -r ${S}/src/import/etc/edgescale-version ${D}/${sysconfdir}/
-
-        # add ${bindir}/local/bin
-        install -d ${D}/${exec_prefix}/local
-        ln -s /usr/bin ${D}/${exec_prefix}/local/bin
+        cp -r ${S}/src/import/etc/edgescale-version ${D}/${sysconfdir}
 }
 
-deltask compile_ptest_base
+FILES_${PN} += "${includedir}/*"
 INSANE_SKIP_${PN} += "already-stripped dev-deps"
-
-FILES_${PN} += "${includedir}/* ${exec_prefix}/local"
+deltask compile_ptest_base

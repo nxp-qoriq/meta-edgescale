@@ -17,9 +17,10 @@ S = "${WORKDIR}/git"
 do_compile[noexec] = "1"
 
 do_install () {
-    install -d ${D}/usr/bin
-    cp -r  ${S}/${ARCH}/* ${D}/usr/bin
+    install -d ${D}/usr/local/bin
+    cp -r  ${S}/${ARCH}/* ${D}/usr/local/bin
     chown -R root:root ${D}
 }
 
 INSANE_SKIP_${PN} += "already-stripped"
+FILES_${PN} += "/usr/local/bin/*"
