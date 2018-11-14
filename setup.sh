@@ -28,7 +28,7 @@ if [ ! -e $1/conf/local.conf.sample ]; then
     echo "# layers for Edgescale" >> conf/bblayers.conf
     echo "BBLAYERS += \"\${BSPDIR}/sources/meta-cloud-services\"" >> conf/bblayers.conf
     echo "BBLAYERS += \"\${BSPDIR}/sources/meta-virtualization\"" >> conf/bblayers.conf
-    echo "BBLAYERS += \"\${BSPDIR}/sources/meta-imx-edgescale\"" >> conf/bblayers.conf
+    echo "BBLAYERS += \"\${BSPDIR}/sources/meta-edgescale\"" >> conf/bblayers.conf
 else
     . ./sources/base/setup-environment $@
 fi
