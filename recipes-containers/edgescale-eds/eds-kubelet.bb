@@ -6,9 +6,9 @@ maintenance, and scaling of applications. \
 "
 
 SRC_URI = "git://github.com/NXP/qoriq-eds-kubelet.git;nobranch=1 \
-    file://0001-Makefile-remove-openssl.patch \
 "
-SRCREV = "ef648562d2ea395e47ff35b4b7139e7f6f409a38"
+
+SRCREV = "c1613364ce66d579ed415b673065489230c98e22"
 
 S = "${WORKDIR}/git"
 
@@ -31,8 +31,8 @@ ARCH_mx7 = "arm"
 ARCH_mx8 = "arm64"
 
 TAGS_aarch64 = ""
-TAGS_mx7 = "-mfpu=vfp -mfloat-abi=hard"
 TAGS_mx6 = "-mfpu=vfp -mfloat-abi=hard"
+TAGS_mx7 = "-mfpu=vfp -mfloat-abi=hard"
 
 export CROSS_COMPILE = "${TARGET_PREFIX}"
 export OPENSSL_PATH = "${RECIPE_SYSROOT}/usr"
