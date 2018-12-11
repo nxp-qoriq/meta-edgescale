@@ -50,6 +50,7 @@ do_install() {
     cp -r  ${S}/images/* ${D}${bindir}
     cp -r  ${S}/etc/kubernetes ${D}/etc
     cp -r  ${S}/scripts/*  ${D}${bindir}
+    sed -i s/pause-arm64/pause-${ARCH}/g ${D}${bindir}/k8s.sh
 }
 
 
