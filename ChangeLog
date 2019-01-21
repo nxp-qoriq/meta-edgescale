@@ -1,0 +1,7 @@
+Date 12/29/2018
+- Enable Edgescale 1809
+- Support i.MX6&7&8 based on L4.14.78-1.0.0_ga BSP release
+
+Date 6/29/2018
+- Enable Edgescale 1803
+- Support i.MX8QM/QXP/MQ based on L4.9.88-2.0.0_ga BSP release
