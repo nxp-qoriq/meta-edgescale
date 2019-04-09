@@ -8,7 +8,7 @@ maintenance, and scaling of applications. \
 SRC_URI = "git://github.com/NXP/qoriq-eds-kubelet.git;nobranch=1 \
     git://github.com/kubernetes/kubernetes.git;branch=master;destsuffix=git/src/import/kubernetes;name=kubernetes \
 "
-SRCREV = "c1613364ce66d579ed415b673065489230c98e22"
+SRCREV = "cf5175b3186e1308cc29a6295fb7bd012b614a22"
 SRCREV_kubernetes = "ad403f8e2054d0dcd322e287af17cc3d69b38bf3"
 
 S = "${WORKDIR}/git"
@@ -48,23 +48,24 @@ do_compile() {
     cp -rf ${S}/src/import/kubernetes/pkg  ${S}/src/import/kubernetes/vendor/k8s.io/kubernetes/
     cp -rf ${S}/src/import/kubernetes/third_party  ${S}/src/import/kubernetes/vendor/k8s.io/kubernetes/
     cd ${S}/src/import/kubernetes/
-    go build --ldflags="-w -s" cmd/kubelet/kubelet.go 
+    ${GO} build --ldflags="-w -s" cmd/kubelet/kubelet.go 
 }
 
 do_install() {
     export GOARCH="${TARGET_GOARCH}"
-    install -d ${D}${bindir}
+    install -d ${D}/usr/local/edgescale/bin
     install -d ${D}/etc
 
-    cp -r  ${S}/src/import/kubernetes/kubelet ${D}${bindir}
+    cp -r  ${S}/src/import/kubernetes/kubelet ${D}/usr/local/edgescale/bin
     cp -r  ${S}/src/import/etc/kubernetes ${D}/etc
-    cp -r  ${S}/src/import/scripts/*  ${D}${bindir}
-    sed -i s/pause-arm64/pause-${GOARCH}/g ${D}${bindir}/k8s.sh
+    cp -r  ${S}/src/import/scripts/*  ${D}/usr/local/edgescale/bin
+    sed -i s/pause-arm64/pause-${GOARCH}/g ${D}/usr/local/edgescale/bin/k8s.sh
 }
 
 
 INHIBIT_PACKAGE_STRIP = "1"
 INSANE_SKIP_${PN} += "ldflags already-stripped"
+FILES_${PN} += "/usr/local/*"
 
 deltask compile_ptest_base
 BBCLASSEXTEND = "nativesdk"
