@@ -1,0 +1,11 @@
+[Unit]
+Description=eds init
+
+[Service]
+User=root
+Type=oneshot
+EnvironmentFile=-/etc/default/eds-init
+ExecStart=/usr/bin/eds-init start 
+
+[Install]
+WantedBy=multi-user.target

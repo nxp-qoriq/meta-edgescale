@@ -23,6 +23,7 @@ SRC_URI = "\
         git://github.com/edgeiot/est-client-go;nobranch=1;destsuffix=git/src/github.com/edgeiot/est-client-go;name=est-client-go \
         git://github.com/edgeiot/est-client-go;nobranch=1;destsuffix=git/src/github.com/edgeiot/est-client-go;name=est-client-go \
         file://${ARM}/cert-agent \
+        file://0001-ota-Add-i.mx8mq-OTA-support.patch \
         "
 SRCREV = "7d70a8767941aed135d609300a0594dfdc60e5ea"
 SRCREV_sys = "cb59ee3660675d463e86971646692ea3e470021c"

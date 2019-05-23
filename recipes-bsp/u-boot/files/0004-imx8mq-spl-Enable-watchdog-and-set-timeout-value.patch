@@ -1,0 +1,55 @@
+From d6899c62db49bb6ca38917b6fad1d1de594bb6fc Mon Sep 17 00:00:00 2001
+From: Alison Wang <alison.wang@nxp.com>
+Date: Sun, 28 Apr 2019 15:54:03 +0800
+Subject: [PATCH 4/4] imx8mq: spl: Enable watchdog and set timeout value
+
+This patch enables watchdog and sets timeout value in SPL. It is used for
+Bootstrap U-Boot.
+
+Signed-off-by: Alison Wang <alison.wang@nxp.com>
+---
+ board/freescale/imx8mq_evk/spl.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/board/freescale/imx8mq_evk/spl.c b/board/freescale/imx8mq_evk/spl.c
+index 841329f..6170ace 100644
+--- a/board/freescale/imx8mq_evk/spl.c
++++ b/board/freescale/imx8mq_evk/spl.c
+@@ -22,6 +22,9 @@
+ #include <fsl_esdhc.h>
+ #include <mmc.h>
+ #include <asm/arch/imx8m_ddr.h>
++#include <asm/arch/imx-regs.h>
++#include <fsl_wdog.h>
++
+ 
+ DECLARE_GLOBAL_DATA_PTR;
+ 
+@@ -215,6 +218,16 @@ int board_fit_config_name_match(const char *name)
+ }
+ #endif
+ 
++void enable_watchdog(void)
++{
++	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
++	u16 timeout;
++
++	timeout = 0x78;	/* 60s */
++	writew(WCR_WDZST | WCR_WDBG | WCR_WDE | WCR_WDT | WCR_SRS |
++	       WCR_WDA | SET_WCR_WT(timeout), &wdog->wcr);
++}
++
+ void board_init_f(ulong dummy)
+ {
+ 	int ret;
+@@ -251,5 +264,7 @@ void board_init_f(ulong dummy)
+ 	/* DDR initialization */
+ 	spl_dram_init();
+ 
++	enable_watchdog();
++
+ 	board_init_r(NULL, 0);
+ }
+-- 
+2.7.4
+

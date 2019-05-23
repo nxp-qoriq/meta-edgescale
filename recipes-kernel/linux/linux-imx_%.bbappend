@@ -3,11 +3,13 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 SRC_URI += " \
             file://docker.cfg \
             file://eds.cfg \
+            file://ram.cfg \
 	"
 
 DELTA_KERNEL_DEFCONFIG ?= ""
 DELTA_KERNEL_DEFCONFIG_prepend_mx6 = "eds.cfg docker.cfg"
 DELTA_KERNEL_DEFCONFIG_prepend_mx7 = "eds.cfg docker.cfg"
+DELTA_KERNEL_DEFCONFIG_prepend_mx8 = "ram.cfg eds.cfg docker.cfg"
 
 do_merge_delta_config[dirs] = "${B}"
 

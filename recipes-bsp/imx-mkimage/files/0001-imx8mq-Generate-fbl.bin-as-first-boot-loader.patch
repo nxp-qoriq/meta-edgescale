@@ -1,0 +1,34 @@
+From b563c0b9fe937ef37aecf493695ad54f98e32966 Mon Sep 17 00:00:00 2001
+From: Chunrong Guo <chunrong.guo@nxp.com>
+Date: Thu, 9 May 2019 15:23:43 +0800
+Subject: [PATCH] imx8mq: Generate fbl.bin as first boot loader
+
+Signed-off-by: Chunrong Guo <chunrong.guo@nxp.com>
+---
+ iMX8M/soc.mak | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/iMX8M/soc.mak b/iMX8M/soc.mak
+index 1b6e357..d9fb10c 100644
+--- a/iMX8M/soc.mak
++++ b/iMX8M/soc.mak
+@@ -1,5 +1,6 @@
+ MKIMG = mkimage_imx8
+ OUTIMG = flash.bin
++FBLIMG = fbl.bin
+ 
+ CC ?= gcc
+ CFLAGS ?= -O2 -Wall -std=c99 -static
+@@ -122,6 +123,9 @@ flash_ddr3l_val: $(MKIMG) signed_dp_imx8m.bin u-boot-spl-ddr3l.bin u-boot-ddr3l.
+ flash_ddr4_val: $(MKIMG) signed_hdmi_imx8m.bin u-boot-spl-ddr4.bin u-boot-ddr4.itb
+ 	./mkimage_imx8 -fit -signed_hdmi signed_hdmi_imx8m.bin -loader u-boot-spl-ddr4.bin 0x7E1000 -second_loader u-boot-ddr4.itb 0x40200000 0x60000 -out $(OUTIMG)
+ 
++first_boot_loader: $(MKIMG) signed_hdmi_imx8m.bin u-boot-spl-ddr.bin
++	./mkimage_imx8 -fit -signed_hdmi signed_hdmi_imx8m.bin -loader u-boot-spl-ddr.bin $(SPL_LOAD_ADDR) 0x40200000 0x60000 -out $(FBLIMG)
++
+ else
+ flash_evk: flash_evk_no_hdmi
+ 
+-- 
+2.7.4
+

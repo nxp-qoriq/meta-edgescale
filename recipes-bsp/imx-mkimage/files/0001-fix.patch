@@ -1,0 +1,32 @@
+From 0e00ae4a416ee3ea6c77add796d72c87d0277e9b Mon Sep 17 00:00:00 2001
+From: "C.r. Guo" <nxa13725@lsv07004.swis.us-cdc01.nxp.com>
+Date: Thu, 16 May 2019 10:12:17 +0200
+Subject: [PATCH] fix
+
+---
+ iMX8M/soc.mak | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/iMX8M/soc.mak b/iMX8M/soc.mak
+index 1b6e357..31200eb 100644
+--- a/iMX8M/soc.mak
++++ b/iMX8M/soc.mak
+@@ -1,5 +1,6 @@
+ MKIMG = mkimage_imx8
+ OUTIMG = flash.bin
++FBLIMG = fbl.bin
+ 
+ CC ?= gcc
+ CFLAGS ?= -O2 -Wall -std=c99 -static
+@@ -122,6 +123,8 @@ flash_ddr3l_val: $(MKIMG) signed_dp_imx8m.bin u-boot-spl-ddr3l.bin u-boot-ddr3l.
+ flash_ddr4_val: $(MKIMG) signed_hdmi_imx8m.bin u-boot-spl-ddr4.bin u-boot-ddr4.itb
+ 	./mkimage_imx8 -fit -signed_hdmi signed_hdmi_imx8m.bin -loader u-boot-spl-ddr4.bin 0x7E1000 -second_loader u-boot-ddr4.itb 0x40200000 0x60000 -out $(OUTIMG)
+ 
++first_boot_loader: $(MKIMG) signed_hdmi_imx8m.bin u-boot-spl-ddr.bin
++	./mkimage_imx8 -fit -signed_hdmi signed_hdmi_imx8m.bin -loader u-boot-spl-ddr.bin 0x7E1000 $(SPL_LOAD_ADDR) -out $(FBLIMG)
+ else
+ flash_evk: flash_evk_no_hdmi
+ 
+-- 
+2.7.4
+

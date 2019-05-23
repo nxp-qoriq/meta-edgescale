@@ -1,0 +1,56 @@
+From 308b066387e923a2699e249c79282c21c2665b4a Mon Sep 17 00:00:00 2001
+From: Alison Wang <alison.wang@nxp.com>
+Date: Thu, 25 Apr 2019 16:13:24 +0800
+Subject: [PATCH 2/4] imx8mq: spl: Add mmc write support
+
+This patch adds mmc write support in SPL for i.mx8mq evb board.
+
+Signed-off-by: Alison Wang <alison.wang@nxp.com>
+---
+ configs/imx8mq_evk_defconfig | 2 ++
+ include/configs/imx8mq_evk.h | 6 ++++--
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/configs/imx8mq_evk_defconfig b/configs/imx8mq_evk_defconfig
+index 372ab57..fd4e706 100644
+--- a/configs/imx8mq_evk_defconfig
++++ b/configs/imx8mq_evk_defconfig
+@@ -42,6 +42,8 @@ CONFIG_DM_THERMAL=y
+ CONFIG_FIT=y
+ CONFIG_SPL_FIT=y
+ CONFIG_SPL_LOAD_FIT=y
++CONFIG_SPL_MMC_SUPPORT=y
++CONFIG_SPL_MMC_WRITE=y
+ CONFIG_USB_TCPC=y
+ CONFIG_USB=y
+ CONFIG_DM_USB=y
+diff --git a/include/configs/imx8mq_evk.h b/include/configs/imx8mq_evk.h
+index 6cff7fe..f1825fc 100644
+--- a/include/configs/imx8mq_evk.h
++++ b/include/configs/imx8mq_evk.h
+@@ -34,7 +34,6 @@
+ #define CONFIG_SPL_LIBGENERIC_SUPPORT
+ #define CONFIG_SPL_SERIAL_SUPPORT
+ #define CONFIG_SPL_GPIO_SUPPORT
+-#define CONFIG_SPL_MMC_SUPPORT
+ #define CONFIG_SPL_BSS_START_ADDR      0x00180000
+ #define CONFIG_SPL_BSS_MAX_SIZE        0x2000	/* 8 KB */
+ #define CONFIG_SYS_SPL_MALLOC_START    0x42200000
+@@ -47,10 +46,13 @@
+ 
+ #define CONFIG_SPL_ABORT_ON_RAW_IMAGE /* For RAW image gives a error info not panic */
+ 
+-#undef CONFIG_DM_MMC
+ #undef CONFIG_DM_PMIC
+ #undef CONFIG_DM_PMIC_PFUZE100
+ 
++#undef CONFIG_ENV_IS_IN_MMC
++#undef CONFIG_BLK
++#define CONFIG_ENV_IS_NOWHERE
++
+ #define CONFIG_SYS_I2C
+ #define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
+ #define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
+-- 
+2.7.4
+
