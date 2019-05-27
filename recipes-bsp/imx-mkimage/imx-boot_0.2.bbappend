@@ -1,7 +1,7 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 
-IMXBOOT_TARGETS_append = " " ${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'first_boot_loader"', '', d)}""
+IMXBOOT_TARGETS_append = " ${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'first_boot_loader', '', d)}"
 SRC_URI_append =  " ${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'file://0001-imx8mq-Generate-fbl.bin-as-first-boot-loader.patch', '', d)}"
 
 OTA = "${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'true', 'false', d)}"
