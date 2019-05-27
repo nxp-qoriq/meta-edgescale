@@ -1,0 +1,10 @@
+[Unit]
+Description=edgescale
+
+[Service]
+User=root
+EnvironmentFile=-/etc/default/edgescale
+ExecStart=./usr/local/edgescale/bin/startup.sh
+
+[Install]
+WantedBy=multi-user.target

@@ -1,4 +1,4 @@
-IMAGE_INSTALL_append = " docker docker-registry edgescale-eds eds-bootstrap eds-kubelet"
+IMAGE_INSTALL_append = " docker docker-registry edgescale-eds eds-bootstrap eds-kubelet edgescale-eds-solution"
 IMAGE_INSTALL_append = " ethtool dhcp-client curl"
 
 IMAGE_ROOTFS_ALIGNMENT = "65536"
