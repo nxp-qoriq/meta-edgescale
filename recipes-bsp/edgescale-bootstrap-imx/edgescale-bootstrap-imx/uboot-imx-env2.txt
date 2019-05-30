@@ -24,12 +24,12 @@ loadbootscript=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};
 loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}
 loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}
 mfgtool_args=setenv bootargs console=${console},${baudrate} rdinit=/linuxrc clk_ignore_unused 
-mmcargs=setenv bootargs console=ttymxc0,115200 root=/dev/mmcblk1p3 rootwait rw
+mmcargs=setenv bootargs console=ttymxc0,115200 root=/dev/mmcblk1p2 rootwait rw
 mmcautodetect=yes
 mmcotaboot=echo Booting from ota ...;setenv bootargs console=ttymxc0,115200 root=/dev/ram0 rootwait rw;mmc read ${fdt_addr} 0x2a00 0x600;mmc read ${loadaddr} 0x3000 0xd000;mmc read ${initrd_addr} 0x10000 0xf000;booti ${loadaddr} ${initrd_addr} ${fdt_addr}
 mmcboot=echo Booting from mmc ...; run mmcargs;ext2load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image};ext2load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file};booti ${loadaddr} - ${fdt_addr}
 mmcdev=1
-mmcpart=2
+mmcpart=1
 mmcroot=/dev/mmcblk1p2 rootwait rw
 netargs=setenv bootargs ${jh_clk} console=${console} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
 netboot=echo Booting from net ...; run netargs;  if test ${ip_dyn} = yes; then setenv get_cmd dhcp; else setenv get_cmd tftp; fi; ${get_cmd} ${loadaddr} ${image}; if test ${boot_fdt} = yes || test ${boot_fdt} = try; then if ${get_cmd} ${fdt_addr} ${fdt_file}; then booti ${loadaddr} - ${fdt_addr}; else echo WARN: Cannot load the DT; fi; else booti; fi;

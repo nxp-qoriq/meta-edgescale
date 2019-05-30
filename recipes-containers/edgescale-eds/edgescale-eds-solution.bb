@@ -20,6 +20,9 @@ do_patch[noexec] = "1"
 do_configure[noexec] = "1"
 do_compile[noexec] = "1"
 do_install() {
+        install -d ${D}/usr/local/edgescale/bin
+        install -m 0755  ${S}/etc/edgescale ${D}/usr/local/edgescale/bin
         install -D -p -m0644 ${WORKDIR}/edgescale.service ${D}${systemd_system_unitdir}/edgescale.service
 }
 INSANE_SKIP_${PN} += "file-rdeps"
+FILES_${PN} += "/usr/local/*"

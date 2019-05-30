@@ -1,7 +1,7 @@
 From c21e93b3f69acf704a560d1746d591c9bceaa92d Mon Sep 17 00:00:00 2001
 From: Alison Wang <alison.wang@nxp.com>
 Date: Thu, 11 Apr 2019 09:41:38 +0800
-Subject: [PATCH 1/4] imx8mq: spl: Add OTA status check
+Subject: [PATCH 01/11] imx8mq: spl: Add OTA status check
 
 This patch adds OTA status check in SPL for I.MX8MQ. The address to load
 the secondary boot loader will be different according to the status.

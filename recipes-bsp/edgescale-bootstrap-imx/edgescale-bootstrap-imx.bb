@@ -30,7 +30,6 @@ do_deploy () {
     for d in ${BOOT_TYPE}; do
         ./create_imx_boot_image.sh -m ${MACHINE} -t ${d} -d . -s ${DEPLOY_DIR_IMAGE}
     done
-    cp uboot-imx-env*.bin ${DEPLOY_DIR_IMAGE}
 }
 
 addtask deploy before do_build after do_compile

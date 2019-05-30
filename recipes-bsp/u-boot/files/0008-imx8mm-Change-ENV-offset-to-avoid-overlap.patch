@@ -1,0 +1,30 @@
+From 2c5099f7cd0677c7ed82d0fa3f15a07794bad5ca Mon Sep 17 00:00:00 2001
+From: Alison Wang <alison.wang@nxp.com>
+Date: Wed, 8 May 2019 15:34:48 +0800
+Subject: [PATCH 08/11] imx8mm: Change ENV offset to avoid overlap
+
+This patch changes ENV offset to avoid overlap for Bootstrap U-Boot.
+
+Signed-off-by: Alison Wang <alison.wang@nxp.com>
+---
+ include/configs/imx8mm_evk.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/configs/imx8mm_evk.h b/include/configs/imx8mm_evk.h
+index 8dea4b2..8b91878 100644
+--- a/include/configs/imx8mm_evk.h
++++ b/include/configs/imx8mm_evk.h
+@@ -240,8 +240,8 @@
+ #if defined(CONFIG_ENV_IS_IN_MMC)
+ #define CONFIG_ENV_OFFSET               (64 * SZ_64K)
+ #elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
+-#define CONFIG_ENV_OFFSET		(4 * 1024 * 1024)
+-#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
++#define CONFIG_ENV_OFFSET		(3840 * 1024)
++#define CONFIG_ENV_SECT_SIZE		(60 * 1024)
+ #define CONFIG_ENV_SPI_BUS		CONFIG_SF_DEFAULT_BUS
+ #define CONFIG_ENV_SPI_CS		CONFIG_SF_DEFAULT_CS
+ #define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
+-- 
+2.7.4
+

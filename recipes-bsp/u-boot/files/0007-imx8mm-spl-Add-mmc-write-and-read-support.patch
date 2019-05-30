@@ -1,0 +1,46 @@
+From 85193eb6e054f3dff025c7465e1c5de491906068 Mon Sep 17 00:00:00 2001
+From: Alison Wang <alison.wang@nxp.com>
+Date: Wed, 8 May 2019 15:29:24 +0800
+Subject: [PATCH 07/11] imx8mm: spl: Add mmc write and read support
+
+This patch add mmc write and read support in SPL for i.mx8mm evk board.
+
+Signed-off-by: Alison Wang <alison.wang@nxp.com>
+---
+ configs/imx8mm_evk_fspi_defconfig | 2 ++
+ include/configs/imx8mm_evk.h      | 3 ++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/configs/imx8mm_evk_fspi_defconfig b/configs/imx8mm_evk_fspi_defconfig
+index 8d77d9c..ea5332c 100644
+--- a/configs/imx8mm_evk_fspi_defconfig
++++ b/configs/imx8mm_evk_fspi_defconfig
+@@ -11,6 +11,8 @@ CONFIG_ARCH_MISC_INIT=y
+ CONFIG_SPL=y
+ CONFIG_SPL_BOARD_INIT=y
+ CONFIG_SPL_NOR_SUPPORT=y
++CONFIG_SPL_MMC_SUPPORT=y
++CONFIG_SPL_MMC_WRITE=y
+ CONFIG_HUSH_PARSER=y
+ CONFIG_OF_LIBFDT=y
+ CONFIG_FS_FAT=y
+diff --git a/include/configs/imx8mm_evk.h b/include/configs/imx8mm_evk.h
+index 68d0643..8dea4b2 100644
+--- a/include/configs/imx8mm_evk.h
++++ b/include/configs/imx8mm_evk.h
+@@ -46,10 +46,11 @@
+ 
+ #define CONFIG_SPL_ABORT_ON_RAW_IMAGE /* For RAW image gives a error info not panic */
+ 
+-#undef CONFIG_DM_MMC
+ #undef CONFIG_DM_PMIC
+ #undef CONFIG_DM_PMIC_PFUZE100
+ 
++#undef CONFIG_BLK
++
+ #define CONFIG_POWER
+ #define CONFIG_POWER_I2C
+ #define CONFIG_POWER_BD71837
+-- 
+2.7.4
+

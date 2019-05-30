@@ -106,6 +106,7 @@ generate_qoriq_composite_firmware() {
 
     . $MACHINE.manifest
     . memorylayout.cfg
+    cp uboot-imx-env*.bin $DEPLOYDIR
     fwimg=$DEPLOYDIR/firmware_${MACHINE}_uboot_${BOOTTYPE}boot
     if [ -f $fwimg ]; then
         rm -f $fwimg

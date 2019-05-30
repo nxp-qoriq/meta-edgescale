@@ -1,31 +1,30 @@
-From d6899c62db49bb6ca38917b6fad1d1de594bb6fc Mon Sep 17 00:00:00 2001
+From 980aa85555699bb6c3199a838eab5ab9f7ccf665 Mon Sep 17 00:00:00 2001
 From: Alison Wang <alison.wang@nxp.com>
-Date: Sun, 28 Apr 2019 15:54:03 +0800
-Subject: [PATCH 04/11] imx8mq: spl: Enable watchdog and set timeout value
+Date: Thu, 9 May 2019 17:28:11 +0800
+Subject: [PATCH 09/11] imx8mm: spl: Enable watchdog and set timeout value
 
 This patch enables watchdog and sets timeout value in SPL. It is used for
 Bootstrap U-Boot.
 
 Signed-off-by: Alison Wang <alison.wang@nxp.com>
 ---
- board/freescale/imx8mq_evk/spl.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ board/freescale/imx8mm_evk/spl.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/board/freescale/imx8mq_evk/spl.c b/board/freescale/imx8mq_evk/spl.c
-index 841329f..6170ace 100644
---- a/board/freescale/imx8mq_evk/spl.c
-+++ b/board/freescale/imx8mq_evk/spl.c
-@@ -22,6 +22,9 @@
+diff --git a/board/freescale/imx8mm_evk/spl.c b/board/freescale/imx8mm_evk/spl.c
+index 10f00a5..927e6c9 100644
+--- a/board/freescale/imx8mm_evk/spl.c
++++ b/board/freescale/imx8mm_evk/spl.c
+@@ -20,6 +20,8 @@
  #include <fsl_esdhc.h>
  #include <mmc.h>
  #include <asm/arch/imx8m_ddr.h>
 +#include <asm/arch/imx-regs.h>
 +#include <fsl_wdog.h>
-+
  
  DECLARE_GLOBAL_DATA_PTR;
  
-@@ -215,6 +218,16 @@ int board_fit_config_name_match(const char *name)
+@@ -217,6 +219,16 @@ int board_fit_config_name_match(const char *name)
  }
  #endif
  
@@ -42,7 +41,7 @@ index 841329f..6170ace 100644
  void board_init_f(ulong dummy)
  {
  	int ret;
-@@ -251,5 +264,7 @@ void board_init_f(ulong dummy)
+@@ -251,5 +263,7 @@ void board_init_f(ulong dummy)
  	/* DDR initialization */
  	spl_dram_init();
  

@@ -1,0 +1,139 @@
+From 08e7aa35082435f2b86597b975cc2200b8ee3467 Mon Sep 17 00:00:00 2001
+From: Alison Wang <alison.wang@nxp.com>
+Date: Tue, 14 May 2019 17:04:54 +0800
+Subject: [PATCH 10/11] imx8mm: spl: Move OTA status check to get_boot_device
+
+This patch moves OTA status check to get_boot_device. According to the
+status, the secondary boot loader will be loaded from SD card or QSPI
+NOR flash.
+
+Signed-off-by: Alison Wang <alison.wang@nxp.com>
+---
+ arch/arm/mach-imx/cpu.c          | 85 ++++++++++++++++++++++++++++++++++++++++
+ arch/arm/mach-imx/imx8m/Makefile |  2 +
+ 2 files changed, 87 insertions(+)
+
+diff --git a/arch/arm/mach-imx/cpu.c b/arch/arm/mach-imx/cpu.c
+index 111f1e4..29ceecb 100644
+--- a/arch/arm/mach-imx/cpu.c
++++ b/arch/arm/mach-imx/cpu.c
+@@ -32,6 +32,7 @@
+ 
+ #ifdef CONFIG_FSL_ESDHC
+ #include <fsl_esdhc.h>
++#include <mmc.h>
+ #endif
+ 
+ #if defined(CONFIG_DISPLAY_CPUINFO) && !defined(CONFIG_SPL_BUILD)
+@@ -484,6 +485,85 @@ u32 get_cpu_temp_grade(int *minc, int *maxc)
+ }
+ #endif
+ 
++#ifdef CONFIG_IMX8MM
++struct OTA_parameter {
++	char status;
++	char str[0x200 - 1];
++};
++
++int ota_status_check(void)
++{
++	struct mmc *mmc;
++	struct blk_desc *bdesc;
++	unsigned int blk_start, blk_cnt;
++	unsigned long offset, size;
++	struct OTA_parameter data;
++	int result, err;
++	static int lresult = 2;
++
++	printf("lresult 0x%x\n", lresult);
++	if ((lresult == 0) || (lresult == 1))
++		return lresult;
++
++	err = mmc_initialize(gd->bd);
++	if (err) {
++		printf("spl: could not initialize mmc. error: %d\n", err);
++		return err;
++	}
++
++	mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
++	if (!mmc) {
++		printf("spl: could not find mmc device\n");
++		return -ENODEV;
++	}
++
++	err = mmc_init(mmc);
++	if (err) {
++		printf("spl: mmc_init failed\n");
++		return err;
++	}
++
++	bdesc = mmc_get_blk_desc(mmc);
++
++	offset = 0x3f00000;
++	size = 0x200;
++	blk_start = ALIGN(offset, mmc->read_bl_len) / mmc->read_bl_len;
++	blk_cnt = ALIGN(size, mmc->read_bl_len) / mmc->read_bl_len;
++	blk_dread(bdesc, blk_start, blk_cnt, (uchar *)&data);
++
++	printf("status = %c\n", data.status);
++	switch (data.status) {
++	case '0':
++		result = 1;
++		break;
++	case '1':
++		result = 1;
++		data.status = '2';
++		blk_dwrite(bdesc, blk_start, blk_cnt, (uchar *)&data);
++		blk_dread(bdesc, blk_start, blk_cnt, (uchar *)&data);
++		printf("Update status = %c\n", data.status);
++		break;
++	case '2':
++		result = 0;
++		break;
++	case '3':
++		result = 0;
++		break;
++	case '4':
++		result = 0;
++		break;
++	case '8':
++		result = 1;
++		break;
++	default:
++		result = 0;
++	}
++
++	lresult = result;
++	return result;
++}
++#endif
++
+ #if defined(CONFIG_MX7) || defined(CONFIG_IMX8M)
+ enum boot_device get_boot_device(void)
+ {
+@@ -524,6 +604,11 @@ enum boot_device get_boot_device(void)
+ 		break;
+ 	}
+ 
++#if defined(CONFIG_SPL_BUILD) && defined(CONFIG_IMX8MM)
++	if (ota_status_check())
++		boot_dev = boot_instance + SD1_BOOT;
++#endif
++
+ 	return boot_dev;
+ }
+ #endif
+diff --git a/arch/arm/mach-imx/imx8m/Makefile b/arch/arm/mach-imx/imx8m/Makefile
+index 64a77a1..bbb7219 100644
+--- a/arch/arm/mach-imx/imx8m/Makefile
++++ b/arch/arm/mach-imx/imx8m/Makefile
+@@ -9,4 +9,6 @@ obj-y   += soc.o clock_slice.o
+ obj-$(CONFIG_IMX8MQ) += clock_imx8mq.o
+ obj-$(CONFIG_IMX8MM) += clock_imx8mm.o
+ obj-$(CONFIG_VIDEO_IMXDCSS) += video_common.o
++ifdef CONFIG_IMX8MQ
+ obj-$(CONFIG_SPL_BUILD) += image.o
++endif
+-- 
+2.7.4
+

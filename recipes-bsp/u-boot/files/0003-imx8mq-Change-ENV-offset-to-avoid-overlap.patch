@@ -1,7 +1,7 @@
 From 4afc07d50aae03b6aa8f787ff9b52df5366e25cd Mon Sep 17 00:00:00 2001
 From: Alison Wang <alison.wang@nxp.com>
 Date: Wed, 17 Apr 2019 13:14:40 +0800
-Subject: [PATCH 3/4] imx8mq: Change ENV offset to avoid overlap
+Subject: [PATCH 03/11] imx8mq: Change ENV offset to avoid overlap
 
 This patch changes ENV offset to avoid overlap for Bootstrap U-Boot.
 

@@ -1,7 +1,7 @@
 From 308b066387e923a2699e249c79282c21c2665b4a Mon Sep 17 00:00:00 2001
 From: Alison Wang <alison.wang@nxp.com>
 Date: Thu, 25 Apr 2019 16:13:24 +0800
-Subject: [PATCH 2/4] imx8mq: spl: Add mmc write support
+Subject: [PATCH 02/11] imx8mq: spl: Add mmc write support
 
 This patch adds mmc write support in SPL for i.mx8mq evb board.
 
