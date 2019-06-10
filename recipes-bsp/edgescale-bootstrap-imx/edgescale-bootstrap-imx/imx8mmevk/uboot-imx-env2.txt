@@ -1,0 +1,38 @@
+baudrate=115200
+boot_fdt=try
+bootcmd=run mmcboot
+bootcmd_mfg=run mfgtool_args;if iminfo ${initrd_addr}; then if test ${tee} = yes; then bootm ${tee_addr} ${initrd_addr} ${fdt_addr}; else booti ${loadaddr} ${initrd_addr} ${fdt_addr}; fi; else echo "Run fastboot ..."; fastboot 0; fi;
+bootdelay=2
+bootscript=echo Running bootscript from mmc ...; source
+console=ttymxc0,115200 root=/dev/ram0 rootwait rw
+emmc_dev=0
+ethprime=FEC
+fastboot_dev=mmc1
+fdt_addr=0x43000000
+fdt_file=fsl-imx8mm-evk.dtb
+fdt_high=0xffffffffffffffff
+fdtcontroladdr=fc91ffc0
+image=Image
+initrd_addr=0x43800000
+initrd_high=0xffffffffffffffff
+jh_clk= 
+jh_mmcboot=setenv fdt_file fsl-imx8mq-evk-root.dtb; setenv jh_clk clk_ignore_unused; if run loadimage; then run mmcboot; else run jh_netboot; fi; 
+jh_netboot=setenv fdt_file fsl-imx8mq-evk-root.dtb; setenv jh_clk clk_ignore_unused; run netboot; 
+kboot=booti 
+loadaddr=0x40480000
+loadbootscript=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};
+loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}
+loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}
+mfgtool_args=setenv bootargs console=${console},${baudrate} rdinit=/linuxrc clk_ignore_unused 
+mmcargs=setenv bootargs console=ttymxc1,115200 root=/dev/mmcblk1p2 rootwait rw
+mmcautodetect=yes
+mmcotaboot=echo Booting from ota ...;setenv bootargs console=ttymxc0,115200 root=/dev/ram0 rootwait rw;mmc read ${fdt_addr} 0x2a00 0x600;mmc read ${loadaddr} 0x3000 0xd000;mmc read ${initrd_addr} 0x10000 0xf000;booti ${loadaddr} ${initrd_addr} ${fdt_addr}
+mmcboot=echo Booting from mmc ...; run mmcargs;ext2load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image};ext2load mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file};booti ${loadaddr} - ${fdt_addr}
+mmcdev=0
+mmcpart=1
+mmcroot=/dev/mmcblk1p2 rootwait rw
+netargs=setenv bootargs ${jh_clk} console=${console} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
+netboot=echo Booting from net ...; run netargs;  if test ${ip_dyn} = yes; then setenv get_cmd dhcp; else setenv get_cmd tftp; fi; ${get_cmd} ${loadaddr} ${image}; if test ${boot_fdt} = yes || test ${boot_fdt} = try; then if ${get_cmd} ${fdt_addr} ${fdt_file}; then booti ${loadaddr} - ${fdt_addr}; else echo WARN: Cannot load the DT; fi; else booti; fi;
+script=boot.scr
+sd_dev=1
+soc_type=imx8mm

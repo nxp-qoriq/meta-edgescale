@@ -4,4 +4,4 @@ IMAGE_INSTALL_append = " ethtool dhcp-client curl"
 IMAGE_ROOTFS_ALIGNMENT = "65536"
 IMAGE_ROOTFS_EXTRA_SPACE = "5048000"
 
-IMAGE_FSTYPES += "tar.gz"
+IMAGE_FSTYPES += " tar.gz"

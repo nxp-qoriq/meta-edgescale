@@ -148,7 +148,7 @@ install_images(){
 		fi
 		security_check
 		feedback_status "ota-install"
-		dd if=$firmware_file of=/dev/mmcblk1 bs=1k seek=1408 conv=fsync
+		dd if=$firmware_file of=/dev/mmcblk1 bs=1k seek=384 conv=fsync
 		mv $kernel_file $dtb_file /run/media/mmcblk1p1/
 		tar zxvf $rootfs_file -C /run/media/mmcblk1p2/
 		rm $firmware_file

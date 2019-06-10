@@ -1,0 +1,35 @@
+From b7562c7b2849226b958ca2b8c8e6304c0451fbaf Mon Sep 17 00:00:00 2001
+From: Chunrong Guo <chunrong.guo@nxp.com>
+Date: Fri, 31 May 2019 10:59:52 +0200
+Subject: [PATCH] imx8mm: Generate fbl.bin for QSPI NOR Flash Boot
+
+Signed-off-by: C.r. Guo <nxa13725@lsv07005.swis.us-cdc01.nxp.com>
+---
+ iMX8M/soc.mak | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/iMX8M/soc.mak b/iMX8M/soc.mak
+index e169e2d..27816ba 100644
+--- a/iMX8M/soc.mak
++++ b/iMX8M/soc.mak
+@@ -27,6 +27,7 @@ VAL_BOARD = val
+ #define the F(Q)SPI header file
+ QSPI_HEADER = ../scripts/fspi_header
+ QSPI_PACKER = ../scripts/fspi_packer.sh
++QSPI_PACKER_FBL = ../scripts/fspi_packer_fbl.sh
+ else
+ PLAT = imx8mq
+ HDMI = yes
+@@ -137,6 +138,9 @@ flash_ddr3l_val: flash_ddr3l_val_no_hdmi
+ 
+ flash_ddr4_val: flash_ddr4_val_no_hdmi
+ 
++first_boot_loader_flexspi: $(MKIMG) u-boot-spl-ddr.bin
++	./mkimage_imx8  -dev flexspi -fit -loader u-boot-spl-ddr.bin 0x7E2000 -out $(FBLIMG)
++	./$(QSPI_PACKER_FBL) $(QSPI_HEADER)
+ endif
+ 
+ flash_evk_no_hdmi: $(MKIMG) u-boot-spl-ddr.bin u-boot.itb
+-- 
+2.7.4
+

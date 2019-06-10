@@ -6,9 +6,9 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-2.0;md5=801f80980d171dd6425
 
 SRC_URI = "file://create_imx_boot_image.sh \
     file://memorylayout.cfg \
-    file://imx8mqevk.manifest \
-    file://uboot-imx-env.txt \
-    file://uboot-imx-env2.txt \
+    file://${MACHINE}/${MACHINE}.manifest \
+    file://${MACHINE}/uboot-imx-env.txt \
+    file://${MACHINE}/uboot-imx-env2.txt \
 "
 
 inherit deploy
@@ -17,7 +17,8 @@ DEPENDS = "u-boot-mkimage-native"
 ITB_IMAGE ?= "fsl-image-edgescale"
 do_deploy[depends] += "imx-boot:do_deploy ${ITB_IMAGE}:do_build"
 
-BOOT_TYPE ??= "sd"
+BOOT_TYPE_mx8mq = "sd"
+BOOT_TYPE_mx8mm = "nor"
 
 S = "${WORKDIR}"
 
@@ -27,6 +28,7 @@ do_configure[noexec] = "1"
 do_compile[noexec] = "1"
 
 do_deploy () {
+    cp ${MACHINE}/* ./
     for d in ${BOOT_TYPE}; do
         ./create_imx_boot_image.sh -m ${MACHINE} -t ${d} -d . -s ${DEPLOY_DIR_IMAGE}
     done

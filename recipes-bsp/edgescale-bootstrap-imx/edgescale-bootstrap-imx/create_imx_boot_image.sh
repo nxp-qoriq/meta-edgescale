@@ -108,44 +108,80 @@ generate_qoriq_composite_firmware() {
     . memorylayout.cfg
     cp uboot-imx-env*.bin $DEPLOYDIR
     fwimg=$DEPLOYDIR/firmware_${MACHINE}_uboot_${BOOTTYPE}boot
+    fwimg2=$DEPLOYDIR/firmware_${MACHINE}_uboot_sdboot
     if [ -f $fwimg ]; then
         rm -f $fwimg
     fi
+    if [ -f $fwimg2 ]; then
+        rm -f $fwimg2
+    fi
+
     if [ $BOOTTYPE = sd -o $BOOTTYPE = emmc ]; then
         dd if=$DEPLOYDIR/$fbl of=$fwimg bs=1K seek=$sd_fbl_offset
+    fi
+    if [ $BOOTTYPE = nor ]; then
+        dd if=$DEPLOYDIR/$fbl of=$fwimg bs=1K seek=0 
     fi
 
     # u-boot_itb firmware
     if [ $BOOTTYPE = sd -o $BOOTTYPE = emmc ]; then
-            dd if=$DEPLOYDIR/$uboot_itb of=$fwimg bs=1K seek=$sd_uboot_itb_offset
+        dd if=$DEPLOYDIR/$uboot_itb of=$fwimg bs=1K seek=$sd_uboot_itb_offset
     fi
-    # env
-    if [ $BOOTTYPE = sd -o $BOOTTYPE = emmc ]; then
-            dd if=$DEPLOYDIR/$uboot_scr of=$fwimg bs=1K seek=$sd_bootloader_env_offset
-    fi
-    if [ $BOOTTYPE = sd -o $BOOTTYPE = emmc ]; then
-            dd if=$DEPLOYDIR/$uboot_scr2 of=$fwimg bs=1K seek=$sd_bootloader_env2_offset
-    fi
-    # dtb
-    if [ $BOOTTYPE = sd -o $BOOTTYPE = emmc ]; then
-            dd if=$DEPLOYDIR/$device_tree of=$fwimg bs=1K seek=$sd_dtb_offset
+    if [ $BOOTTYPE = nor ]; then
+        val=`expr $(echo $(($nor_uboot_itb_offset))) / 1024`
+        dd if=$DEPLOYDIR/$uboot_itb of=$fwimg bs=1K seek=$val
     fi
 
+    # env
+    if [ $BOOTTYPE = sd -o $BOOTTYPE = emmc ]; then
+        dd if=$DEPLOYDIR/$uboot_scr of=$fwimg bs=1K seek=$sd_bootloader_env_offset
+    fi
+    if [ $BOOTTYPE = nor ]; then
+        val=`expr $(echo $(($nor_bootloader_env_offset))) / 1024`
+        dd if=$DEPLOYDIR/$uboot_scr of=$fwimg bs=1K seek=$val
+    fi
+
+    if [ $BOOTTYPE = sd -o $BOOTTYPE = emmc ]; then
+        dd if=$DEPLOYDIR/$uboot_scr2 of=$fwimg bs=1K seek=$sd_bootloader_env2_offset
+    fi
+    if [ $BOOTTYPE = nor ]; then
+        val=`expr $(echo $(($nor_bootloader_env2_offset))) / 1024`
+        dd if=$DEPLOYDIR/$uboot_scr2 of=$fwimg bs=1K seek=$val
+        dd if=$DEPLOYDIR/$uboot_scr2 of=$fwimg2 bs=1K seek=$sd_bootloader_env2_offset
+    fi
+    
+
+    # dtb
+    if [ $BOOTTYPE = sd -o $BOOTTYPE = emmc ]; then
+        dd if=$DEPLOYDIR/$device_tree of=$fwimg bs=1K seek=$sd_dtb_offset
+    fi
+    if [ $BOOTTYPE = nor ]; then
+        dd if=$DEPLOYDIR/$device_tree of=$fwimg2 bs=1K seek=$sd_dtb_offset
+    fi
     # linux kernel image
     if [ $BOOTTYPE = sd -o $BOOTTYPE = emmc ]; then
         dd if=$DEPLOYDIR/${kernel_img} of=$fwimg bs=1K seek=$sd_kernel_offset
     fi
+    if [ $BOOTTYPE = nor ]; then
+        dd if=$DEPLOYDIR/${kernel_img} of=$fwimg2 bs=1K seek=$sd_kernel_offset
+    fi
+
     # rootfs image
     if [ $BOOTTYPE = sd -o $BOOTTYPE = emmc ]; then
         dd if=$DEPLOYDIR/${rootfs} of=$fwimg bs=1K seek=$sd_rootfs_offset
     fi
-
+    if [ $BOOTTYPE = nor ]; then
+        dd if=$DEPLOYDIR/${rootfs} of=$fwimg2 bs=1K seek=$sd_rootfs_offset
+    fi
    
     if [ $BOOTTYPE = sd -o $BOOTTYPE = emmc ]; then
         tail -c +4097 $fwimg > $fwimg.img && rm $fwimg
-    else
-        mv $fwimg $fwimg.img
     fi
+    if [ $BOOTTYPE = nor ]; then
+        tail -c +4097 $fwimg2 > $fwimg2.img && rm $fwimg2
+        mv $fwimg $fwimg.img
+    fi     
+
     echo -e "${GREEN} $fwimg.img   [Done]\n${NC}"
 
 }
