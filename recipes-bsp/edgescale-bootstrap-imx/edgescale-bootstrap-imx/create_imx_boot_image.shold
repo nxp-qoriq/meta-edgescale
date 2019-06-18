@@ -93,8 +93,8 @@ generate_qoriq_composite_firmware() {
     # env
     if [ $BOOTTYPE = sd -o $BOOTTYPE = emmc ]; then
         if [ "$uboot_scr" != "null" -a -n "$uboot_scr" ]; then
-            mkenvimage -s 0x1000 -o  $uboot_scr uboot-imx-env.txt
-            cp $uboot_scr $DEPLOYDIR
+            mkenvimage -s 0x2000 -o  $uboot_scr uboot-imx-env.txt
+            cp uboot-imx-env*.bin $DEPLOYDIR
             dd if=$DEPLOYDIR/$uboot_scr of=$fwimg bs=1K seek=$sd_bootloader_env_offset
         fi
         if [ "$uboot_dtb_scr2" != "null" -a -n "$uboot_dtb_scr2" ]; then
@@ -105,8 +105,6 @@ generate_qoriq_composite_firmware() {
     fi
     if [ $BOOTTYPE = nor ]; then
         val=`expr $(echo $(($nor_bootloader_env_offset))) / 1024`
-        mkenvimage -s 0x1000 -o  $uboot_scr uboot-imx-env.txt
-        cp $uboot_scr  $DEPLOYDIR
         dd if=$DEPLOYDIR/$uboot_scr of=$fwimg bs=1K seek=$val
     fi
     #  uboot dtb
@@ -118,8 +116,8 @@ generate_qoriq_composite_firmware() {
 
     if [ $BOOTTYPE = sd -o $BOOTTYPE = emmc ]; then
         if [ "$uboot_scr2" != "null" -a -n "$uboot_scr2" ]; then
-            mkenvimage -s 0x1000 -o  $uboot_scr2 uboot-imx-env2.txt
-            cp $uboot_scr2  $DEPLOYDIR
+            mkenvimage -s 0x2000 -o  $uboot_scr2 uboot-imx-env2.txt
+            cp uboot-imx-env*.bin $DEPLOYDIR
             dd if=$DEPLOYDIR/$uboot_scr2 of=$fwimg bs=1K seek=$sd_bootloader_env2_offset
         fi
         if [ "$uboot_dtb_scr" != "null" -a -n "$uboot_dtb_scr" ]; then
@@ -130,8 +128,6 @@ generate_qoriq_composite_firmware() {
     fi
     if [ $BOOTTYPE = nor ]; then
         val=`expr $(echo $(($nor_bootloader_env2_offset))) / 1024`
-        mkenvimage -s 0x1000 -o  $uboot_scr2 uboot-imx-env2.txt
-        cp $uboot_scr2  $DEPLOYDIR
         dd if=$DEPLOYDIR/$uboot_scr2 of=$fwimg bs=1K seek=$val
         dd if=$DEPLOYDIR/$uboot_scr2 of=$fwimg2 bs=1K seek=$sd_bootloader_env2_offset
     fi
@@ -161,10 +157,14 @@ generate_qoriq_composite_firmware() {
     fi
    
     if [ $BOOTTYPE = sd -o $BOOTTYPE = emmc ]; then
-        tail -c +0 $fwimg > $fwimg.img && rm $fwimg
+        if [ $MACHINE = imx6qsabresd ]; then
+            mv $fwimg $fwimg.img
+        else 
+            tail -c +4097 $fwimg > $fwimg.img && rm $fwimg
+        fi
     fi
     if [ $BOOTTYPE = nor ]; then
-        tail -c +0 $fwimg2 > $fwimg2.img && rm $fwimg2
+        tail -c +4097 $fwimg2 > $fwimg2.img && rm $fwimg2
         mv $fwimg $fwimg.img
     fi     
 

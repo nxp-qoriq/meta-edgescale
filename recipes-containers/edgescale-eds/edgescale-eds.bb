@@ -23,7 +23,7 @@ SRC_URI = "\
         git://github.com/edgeiot/est-client-go;nobranch=1;destsuffix=git/src/github.com/edgeiot/est-client-go;name=est-client-go \
         git://github.com/edgeiot/est-client-go;nobranch=1;destsuffix=git/src/github.com/edgeiot/est-client-go;name=est-client-go \
         file://${ARM}/cert-agent \
-        file://0001-ota-Add-i.mx8mq-OTA-support.patch \
+        file://0001-imx-ota-support.patch \
         "
 SRCREV = "7d70a8767941aed135d609300a0594dfdc60e5ea"
 SRCREV_sys = "cb59ee3660675d463e86971646692ea3e470021c"
@@ -99,7 +99,14 @@ do_install_append_imx() {
     cp -r ${S}/import/vendor/mq-agent/mq-agent ${D}/usr/local/edgescale/bin
     cp -r ${S}/src/${GO_IMPORT}/startup/*.sh ${D}/usr/local/edgescale/bin
     cp -r ${S}/src/${GO_IMPORT}/startup/ota-* ${D}/usr/local/edgescale/bin
-    
+}
+
+do_install_append_mx6() { 
+   sed -i "s:/dev/mmcblk1:/dev/mmcblk2:" ${D}/usr/local/edgescale/bin/startup.sh   
+   sed -i "s:/dev/mmcblk1:/dev/mmcblk2:" ${D}/usr/local/edgescale/bin/ota-statuscheck
+   sed -i "s:/dev/mmcblk1:/dev/mmcblk2:" ${D}/usr/local/edgescale/bin/ota-updateSet
+   sed -i "s:/run/media/mmcblk1p3:/run/media/mmcblk2p3:" ${D}/usr/local/edgescale/bin/ota-updateSet
+   sed -i "s:/dev/mmcblk1p3:/dev/mmcblk2p3:" ${D}/usr/local/edgescale/bin/ota-updateSet
 }
 
 FILES_${PN} += "${includedir}/* /usr/local/*"

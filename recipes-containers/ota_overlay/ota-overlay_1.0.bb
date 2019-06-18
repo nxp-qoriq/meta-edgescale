@@ -19,6 +19,10 @@ do_install () {
     -exec install -m 0755  '{}' ${D}/${MERGED_DST}/ \;
     find ${WORKDIR}/merge/ -maxdepth 1 -mindepth 1 -exec rm -fr '{}' \;
 }
+do_install_append_mx6 () {
+    sed -i "s:/dev/mmcblk1:/dev/mmcblk2:" ${D}/usr/bin/eds-init
+    mv ${D}/${MERGED_DST}/ota-update-mx6 ${D}/${MERGED_DST}/ota-update
+}
 do_unpack[nostamp] = "1"
 do_install[nostamp] = "1"
 do_configure[noexec] = "1"

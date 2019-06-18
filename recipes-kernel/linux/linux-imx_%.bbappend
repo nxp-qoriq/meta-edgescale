@@ -5,9 +5,10 @@ SRC_URI += " \
             file://eds.cfg \
             file://ram.cfg \
 	"
+SRC_URI_append_mx6 =  " file://0001-ARM-dts-imx6qdl-sabresd-Enable-WDOG1.patch"
 
 DELTA_KERNEL_DEFCONFIG ?= ""
-DELTA_KERNEL_DEFCONFIG_prepend_mx6 = "eds.cfg docker.cfg"
+DELTA_KERNEL_DEFCONFIG_prepend_mx6 = "ram.cfg eds.cfg docker.cfg"
 DELTA_KERNEL_DEFCONFIG_prepend_mx7 = "eds.cfg docker.cfg"
 DELTA_KERNEL_DEFCONFIG_prepend_mx8 = "ram.cfg eds.cfg docker.cfg"
 

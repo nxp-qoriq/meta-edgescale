@@ -1,19 +1,16 @@
-From ca443c18acb28350f8018a9ffe68a308833f3fc0 Mon Sep 17 00:00:00 2001
-From: Alison Wang <alison.wang@nxp.com>
-Date: Sun, 28 Apr 2019 11:40:34 +0800
-Subject: [PATCH] ota: Add i.mx8mq OTA support
+From 234148f757618e7189ac1245c883d4d662909b4e Mon Sep 17 00:00:00 2001
+From: Chunrong Guo <chunrong.guo@nxp.com>
+Date: Fri, 14 Jun 2019 06:03:49 +0200
+Subject: [PATCH] imx ota support
 
-This patch adds i.mx8mq OTA support according to the latest layout and state
-machine diagram.
-
-Signed-off-by: Alison Wang <alison.wang@nxp.com>
+Signed-off-by: C.r. Guo <nxa13725@lsv07005.swis.us-cdc01.nxp.com>
 ---
- github.com/NXP/qoriq-edgescale-eds/startup/ota-statuscheck |  4 ++--
- github.com/NXP/qoriq-edgescale-eds/startup/ota-updateSet   | 15 +++++++++++----
- github.com/NXP/qoriq-edgescale-eds/startup/startup.sh      |  2 +-
- 3 files changed, 14 insertions(+), 7 deletions(-)
+ startup/ota-statuscheck |  4 ++--
+ startup/ota-updateSet   | 17 ++++++++++++-----
+ startup/startup.sh      |  4 +++-
+ 3 files changed, 17 insertions(+), 8 deletions(-)
 
-diff --git a/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-statuscheck b/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-statuscheck
+diff --git a/startup/ota-statuscheck b/startup/ota-statuscheck
 index e01521a..39e4ac5 100755
 --- a/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-statuscheck
 +++ b/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-statuscheck
@@ -33,12 +30,16 @@ index e01521a..39e4ac5 100755
 -dd if=/tmp/ota-info of=/dev/mmcblk0 bs=512 seek=129024 count=1 conv=sync
 +dd if=/tmp/ota-info of=/dev/mmcblk1 bs=512 seek=129024 count=1 conv=sync
  
-diff --git a/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-updateSet b/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-updateSet
-index c0608fc..b65ae38 100755
+diff --git a/startup/ota-updateSet b/startup/ota-updateSet
+index c0608fc..ef3e173 100755
 --- a/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-updateSet
 +++ b/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-updateSet
-@@ -9,7 +9,7 @@
- /usr/local/edgescale/bin/cert-agent
+@@ -6,10 +6,10 @@
+ 
+ #!/bin/bash
+ 
+-/usr/local/edgescale/bin/cert-agent
++/usr/local/edgescale/bin/cert-agent -dev /dev/mmcblk1
  . /data/config.env
  
 -dd if=/dev/mmcblk0 of=/tmp/ota-info bs=512 skip=129024 count=1
@@ -51,10 +52,10 @@ index c0608fc..b65ae38 100755
  download_images(){
  	feedback_status "ota-fetch"
 -	download_path=/updateImages
-+	download_path=/run/media/mmcblk1p1
++	download_path=/run/media/mmcblk1p3
 +	mkdir -p /run/media
  	mkdir -p ${download_path}
-+	mount /dev/mmcblk1p1 ${download_path}
++	mount /dev/mmcblk1p3 ${download_path}
 +
 +	mv ${download_path}/full_images.tgz ${download_path}/full_images.tgz.old
  
@@ -81,11 +82,18 @@ index c0608fc..b65ae38 100755
  		sleep 5
  		reboot
  	else
-diff --git a/git/src/github.com/NXP/qoriq-edgescale-eds/startup/startup.sh b/git/src/github.com/NXP/qoriq-edgescale-eds/startup/startup.sh
-index 0e9edf7..daeb72c 100755
+diff --git a/startup/startup.sh b/startup/startup.sh
+index 0e9edf7..84e0bad 100755
 --- a/src/github.com/NXP/qoriq-edgescale-eds/startup/startup.sh
 +++ b/src/github.com/NXP/qoriq-edgescale-eds/startup/startup.sh
-@@ -25,7 +25,7 @@ mkdir -p /data
+@@ -20,12 +20,14 @@ push_publicip() {
+ 	curl -X POST -H "Content-Type: application/json; verson=$version" -H "access-token: $token" $url -d "$body"
+ }
+ 
++echo 'V' > /dev/watchdog
++
+ cd /usr/local/edgescale/bin/
+ mkdir -p /data
  
  ./env.sh
  start-stop-daemon --start --startas /bin/tee-supplicant --name tee-supplicant -m --pidfile /var/run/tee-supplicant.pid -b

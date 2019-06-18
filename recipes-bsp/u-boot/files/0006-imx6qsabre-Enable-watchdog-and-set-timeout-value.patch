@@ -1,0 +1,53 @@
+From 074a29e0bbe00ed7c1d164dc821ac25cbbc645b5 Mon Sep 17 00:00:00 2001
+From: Alison Wang <alison.wang@nxp.com>
+Date: Fri, 31 May 2019 15:06:38 +0800
+Subject: [PATCH 6/6] imx6qsabre: Enable watchdog and set timeout value
+
+This patch enables watchdog and sets timeout value in SPL.
+
+Signed-off-by: Alison Wang <alison.wang@nxp.com>
+---
+ board/freescale/mx6sabresd/mx6sabresd.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/board/freescale/mx6sabresd/mx6sabresd.c b/board/freescale/mx6sabresd/mx6sabresd.c
+index 385a18e..16d089b 100644
+--- a/board/freescale/mx6sabresd/mx6sabresd.c
++++ b/board/freescale/mx6sabresd/mx6sabresd.c
+@@ -24,6 +24,7 @@
+ #include <asm/arch/crm_regs.h>
+ #include <asm/io.h>
+ #include <asm/arch/sys_proto.h>
++#include <fsl_wdog.h>
+ #include <i2c.h>
+ #include <input.h>
+ #include <power/pmic.h>
+@@ -983,6 +984,16 @@ static void spl_dram_init(void)
+ 		ddr_init(mx6dl_dcd_table, ARRAY_SIZE(mx6dl_dcd_table));
+ }
+ 
++void enable_watchdog(void)
++{
++	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
++	u16 timeout;
++
++	timeout = 0xF0; /* about 120s */
++	writew(WCR_WDZST | WCR_WDBG | WCR_WDE | WCR_WDT | WCR_SRS |
++	       WCR_WDA | SET_WCR_WT(timeout), &wdog->wcr);
++}
++
+ void board_init_f(ulong dummy)
+ {
+ 	/* DDR initialization */
+@@ -1006,6 +1017,8 @@ void board_init_f(ulong dummy)
+ 	/* Clear the BSS. */
+ 	memset(__bss_start, 0, __bss_end - __bss_start);
+ 
++	enable_watchdog();
++
+ 	/* load/boot image from boot device */
+ 	board_init_r(NULL, 0);
+ }
+-- 
+2.7.4
+

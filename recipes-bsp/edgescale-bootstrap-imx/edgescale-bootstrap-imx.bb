@@ -15,9 +15,11 @@ inherit deploy
 
 DEPENDS = "u-boot-mkimage-native"
 ITB_IMAGE ?= "fsl-image-edgescale"
-do_deploy[depends] += "imx-boot:do_deploy ${ITB_IMAGE}:do_build"
+UBOOT_IMAGE ?= "imx-boot"
+UBOOT_IMAGE_mx6 = "uboot-ota"
+do_deploy[depends] += "${UBOOT_IMAGE}:do_deploy ${ITB_IMAGE}:do_build"
 
-BOOT_TYPE_mx8mq = "sd"
+BOOT_TYPE ?= "sd"
 BOOT_TYPE_mx8mm = "nor"
 
 S = "${WORKDIR}"
