@@ -1,19 +1,19 @@
-From 234148f757618e7189ac1245c883d4d662909b4e Mon Sep 17 00:00:00 2001
+From 15f918f476fdb77151fdb1f5a93bbe925f765cb2 Mon Sep 17 00:00:00 2001
 From: Chunrong Guo <chunrong.guo@nxp.com>
-Date: Fri, 14 Jun 2019 06:03:49 +0200
+Date: Fri, 21 Jun 2019 10:49:36 +0200
 Subject: [PATCH] imx ota support
 
 Signed-off-by: C.r. Guo <nxa13725@lsv07005.swis.us-cdc01.nxp.com>
 ---
  startup/ota-statuscheck |  4 ++--
- startup/ota-updateSet   | 17 ++++++++++++-----
+ startup/ota-updateSet   | 17 +++++++++--------
  startup/startup.sh      |  4 +++-
- 3 files changed, 17 insertions(+), 8 deletions(-)
+ 3 files changed, 14 insertions(+), 11 deletions(-)
 
 diff --git a/startup/ota-statuscheck b/startup/ota-statuscheck
 index e01521a..39e4ac5 100755
---- a/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-statuscheck
-+++ b/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-statuscheck
+--- a/src/bitbucket.sw.nxp.com/dcca/qoriq-edgescale-eds/startup/ota-statuscheck
++++ b/src/bitbucket.sw.nxp.com/dcca/qoriq-edgescale-eds/startup/ota-statuscheck
 @@ -6,7 +6,7 @@
  
  #!/bin/bash
@@ -31,62 +31,57 @@ index e01521a..39e4ac5 100755
 +dd if=/tmp/ota-info of=/dev/mmcblk1 bs=512 seek=129024 count=1 conv=sync
  
 diff --git a/startup/ota-updateSet b/startup/ota-updateSet
-index c0608fc..ef3e173 100755
---- a/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-updateSet
-+++ b/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-updateSet
-@@ -6,10 +6,10 @@
- 
- #!/bin/bash
- 
+index 201db82..1fcc377 100755
+--- a/src/bitbucket.sw.nxp.com/dcca/qoriq-edgescale-eds/startup/ota-updateSet
++++ b/src/bitbucket.sw.nxp.com/dcca/qoriq-edgescale-eds/startup/ota-updateSet
+@@ -15,7 +15,7 @@
+ #Status=2 Failed start linux on SD card,And it will rollback,get old version image.
+ #
+ #Status=8 The Solution images download completed,And it will automatically reboot and image installation in bootstrap image.
 -/usr/local/edgescale/bin/cert-agent
-+/usr/local/edgescale/bin/cert-agent -dev /dev/mmcblk1
++/usr/local/edgescale/bin/cert-agent  -dev /dev/mmcblk1
  . /data/config.env
  
--dd if=/dev/mmcblk0 of=/tmp/ota-info bs=512 skip=129024 count=1
-+dd if=/dev/mmcblk1 of=/tmp/ota-info bs=512 skip=129024 count=1
- platform=`cat /tmp/ota-info | awk '{print $2}'`
- oldimageVersion=`cat /tmp/ota-info | awk '{print $3}'`
- oldmid=`cat /tmp/ota-info | awk '{print $8}'`
-@@ -41,13 +41,17 @@ get_imageURL(){
+ updateStatus=`cat /tmp/ota-info | awk '{print $1}'`
+@@ -50,15 +50,16 @@ get_imageURL(){
  
  download_images(){
  	feedback_status "ota-fetch"
--	download_path=/updateImages
-+	download_path=/run/media/mmcblk1p3
-+	mkdir -p /run/media
+-	download_path=/backup/updateImages
++        download_path=/run/media/mmcblk1p3
++        mkdir -p /run/media
  	mkdir -p ${download_path}
-+	mount /dev/mmcblk1p3 ${download_path}
+-	if [ -e ${download_path}/full_images_deploy* ];then
+-		rm -f ${download_path}/full_images_deploy*
+-	fi
++        mount /dev/mmcblk1p3 ${download_path}
++        mv ${download_path}/full_images.tgz ${download_path}/full_images.tgz.old
 +
-+	mv ${download_path}/full_images.tgz ${download_path}/full_images.tgz.old
- 
  	count=0
  	while [ $count -le 5 ]
  	do
--		wget -O /updateImages/full_images.tgz -c $imageURL
+-		wget -O ${download_path}/full_images_deploy.tgz -c $imageURL
 +		wget -O ${download_path}/full_images.tgz -c $imageURL
  		if [ $? != 0 ];then
  			((count++))
  			echo "retrying $count times"
-@@ -77,10 +81,13 @@ if [ $imageURL ];then
- 	feedback_status "ota-start"
- 	updateStatus=8
- 	echo "$updateStatus $platform $oldimageVersion $newimageVersion $solutionname $solutionid $autoOta $mid" > /tmp/ota-info
--	dd if=/tmp/ota-info of=/dev/mmcblk0 bs=512 seek=129024 count=1 conv=sync
-+	dd if=/tmp/ota-info of=/dev/mmcblk1 bs=512 seek=129024 count=1 conv=sync
+@@ -90,9 +91,9 @@ if [ $imageURL ];then
  
  	download_images
  	if [ $? -eq 0 ];then
+-		updateStatus=8
 +		updateStatus=4
-+		echo "$updateStatus $platform $oldimageVersion $newimageVersion $solutionname $solutionid $autoOta $mid" > /tmp/ota-info
+ 		echo "$updateStatus $platform $oldimageVersion $newimageVersion $solutionname $solutionid $autoOta $mid" > /tmp/ota-info
+-		dd if=/tmp/ota-info of=/dev/mmcblk0 bs=512 seek=129024 count=1 conv=sync
 +		dd if=/tmp/ota-info of=/dev/mmcblk1 bs=512 seek=129024 count=1 conv=sync
  		sleep 5
  		reboot
  	else
 diff --git a/startup/startup.sh b/startup/startup.sh
-index 0e9edf7..84e0bad 100755
---- a/src/github.com/NXP/qoriq-edgescale-eds/startup/startup.sh
-+++ b/src/github.com/NXP/qoriq-edgescale-eds/startup/startup.sh
-@@ -20,12 +20,14 @@ push_publicip() {
+index affe1a3..e110358 100755
+--- a/src/bitbucket.sw.nxp.com/dcca/qoriq-edgescale-eds/startup/startup.sh
++++ b/src/bitbucket.sw.nxp.com/dcca/qoriq-edgescale-eds/startup/startup.sh
+@@ -20,13 +20,15 @@ push_publicip() {
  	curl -X POST -H "Content-Type: application/json; verson=$version" -H "access-token: $token" $url -d "$body"
  }
  
@@ -96,6 +91,7 @@ index 0e9edf7..84e0bad 100755
  mkdir -p /data
  
  ./env.sh
+ start-stop-daemon --start --startas /usr/local/edgescale/bin/es-watchdog --name es-watchdog -m --pidfile /var/run/es-watchdog.pid -b
  start-stop-daemon --start --startas /bin/tee-supplicant --name tee-supplicant -m --pidfile /var/run/tee-supplicant.pid -b
 -./cert-agent
 +./cert-agent -dev /dev/mmcblk1
