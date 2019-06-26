@@ -13,8 +13,8 @@ SRC_URI_append =  " ${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'file://0004-
 SRC_URI_append =  " ${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'file://0005-fspi_packer_fbl.sh-change-mod.patch', '', d)}"
 
 OTA = "${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'true', 'false', d)}"
-DEPLOY_OPTEE = "${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'false', 'true', d)}"
-
+#DEPLOY_OPTEE = "${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'false', 'true', d)}"
+DEPLOY_OPTEE = "false"
 do_compile () {
     if [ "${SOC_TARGET}" = "iMX8M" -o "${SOC_TARGET}" = "iMX8MM" ]; then
         echo 8MQ/8MM boot binary build
@@ -31,6 +31,8 @@ do_compile () {
         
         if [ "${OTA}" = "true" ] && [ "${SOC_TARGET}" = "iMX8MM" ]; then
             cp ${DEPLOY_DIR_IMAGE}/${BOOT_TOOLS}/bl31-imx8mm.bin ${S}/${SOC_DIR}/bl31.bin
+        elif [ "${SOC_TARGET}" = "iMX8M" ]; then
+            cp ${DEPLOY_DIR_IMAGE}/${BOOT_TOOLS}/bl31-imx8mq.bin ${S}/${SOC_DIR}/bl31.bin
         else
             cp ${DEPLOY_DIR_IMAGE}/${BOOT_TOOLS}/${ATF_MACHINE_NAME} ${S}/${SOC_DIR}/bl31.bin
         fi
