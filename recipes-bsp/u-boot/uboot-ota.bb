@@ -20,12 +20,15 @@ LIC_FILES_CHKSUM = "file://Licenses/gpl-2.0.txt;md5=b234ee4d69f5fce4486a80fdaf4a
 SRC_URI = "git://git.denx.de/u-boot.git"
 SRCREV =  "7c7919cd07b34a784ab321ab7578106c9e9bd753"
 
-SRC_URI_append_mx6 =  " ${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'file://0001-mx6sabresd-Remove-CONFIG_SPL_DM-to-decrease-the-SPL-.patch', '', d)}"
-SRC_URI_append_mx6 =  " ${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'file://0002-MLK-19219-1-spl-Add-function-to-get-u-boot-raw-secto.patch', '', d)}"
-SRC_URI_append_mx6 =  " ${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'file://0003-imx6qsabre-spl-Add-OTA-status-check.patch', '', d)}"
-SRC_URI_append_mx6 =  " ${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'file://0004-imx6qsabre-spl-Add-mmc-write-support.patch', '', d)}"
-SRC_URI_append_mx6 =  " ${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'file://0005-imx6qsabre-Change-ENV-offset-to-avoid-overlap.patch', '', d)}"
-SRC_URI_append_mx6 =  " ${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'file://0006-imx6qsabre-Enable-watchdog-and-set-timeout-value.patch', '', d)}"
+MX6_PATCHES = "file://0001-mx6sabresd-Remove-CONFIG_SPL_DM-to-decrease-the-SPL-.patch \
+               file://0002-MLK-19219-1-spl-Add-function-to-get-u-boot-raw-secto.patch \
+               file://0003-imx6qsabre-spl-Add-OTA-status-check.patch \
+               file://0004-imx6qsabre-spl-Add-mmc-write-support.patch \
+               file://0005-imx6qsabre-Change-ENV-offset-to-avoid-overlap.patch \
+               file://0006-imx6qsabre-Enable-watchdog-and-set-timeout-value.patch \
+"
+
+SRC_URI_append_mx6 =  " ${@bb.utils.contains('DISTRO_FEATURES', 'ota', '${MX6_PATCHES}', '', d)}"
 
 do_deploy_append () {
     install -m 0777 ${B}/${config}/SPL  ${DEPLOYDIR}

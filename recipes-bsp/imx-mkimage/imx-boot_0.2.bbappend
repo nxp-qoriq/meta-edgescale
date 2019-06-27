@@ -13,7 +13,7 @@ SRC_URI_append =  " ${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'file://0004-
 SRC_URI_append =  " ${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'file://0005-fspi_packer_fbl.sh-change-mod.patch', '', d)}"
 
 OTA = "${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'true', 'false', d)}"
-#DEPLOY_OPTEE = "${@bb.utils.contains('DISTRO_FEATURES', 'ota', 'false', 'true', d)}"
+#solution and bootstap need remove tee.bin
 DEPLOY_OPTEE = "false"
 do_compile () {
     if [ "${SOC_TARGET}" = "iMX8M" -o "${SOC_TARGET}" = "iMX8MM" ]; then
