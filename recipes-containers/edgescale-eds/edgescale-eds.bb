@@ -19,7 +19,7 @@ SRC_URI = "\
         git://github.com/edgeiot/est-client-go;nobranch=1;destsuffix=git/src/github.com/edgeiot/est-client-go;name=est-client-go \
         file://0001-imx-ota-support.patch \
         "
-SRCREV = "ef2f47be20b7c61995601b0ae1f9d52b28891fc5"
+SRCREV = "9b0090ae701547272e3670cbb12125d73f5e26ba"
 SRCREV_sys = "cb59ee3660675d463e86971646692ea3e470021c"
 SRCREV_crypto = "ff983b9c42bc9fbf91556e191cc8efb585c16908"
 SRCREV_net = "927f97764cc334a6575f4b7a1584a147864d5723"
@@ -43,8 +43,7 @@ DEPENDS_append_qoriq-arm64 = "optee-client-qoriq secure-obj"
 
 RDEPENDS_${PN}_append_qoriq-arm64 = "optee-client-qoriq secure-obj"
 
-#GO_IMPORT = ""
-GO_IMPORT = "bitbucket.sw.nxp.com/dcca/qoriq-edgescale-eds"
+GO_IMPORT = "github.com/NXP/qoriq-edgescale-eds"
 
 S = "${WORKDIR}/git"
 inherit go
