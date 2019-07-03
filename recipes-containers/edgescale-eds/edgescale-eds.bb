@@ -95,6 +95,7 @@ do_install_append_imx() {
     cp -r ${S}/src/${GO_IMPORT}/startup/*.sh ${D}/usr/local/edgescale/bin
     cp -r ${S}/src/${GO_IMPORT}/startup/ota-* ${D}/usr/local/edgescale/bin
     sed -i "s:/bin/tee-supplicant:/usr/bin/tee-supplicant:" ${D}/usr/local/edgescale/bin/startup.sh
+    sed -i -e '/es-watchdog/d' ${D}/usr/local/edgescale/bin/startup.sh
 }
 
 do_install_append_mx6() { 

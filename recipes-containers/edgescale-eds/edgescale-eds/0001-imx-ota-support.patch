@@ -12,8 +12,8 @@ Signed-off-by: C.r. Guo <nxa13725@lsv07005.swis.us-cdc01.nxp.com>
 
 diff --git a/startup/ota-statuscheck b/startup/ota-statuscheck
 index e01521a..39e4ac5 100755
---- a/src/bitbucket.sw.nxp.com/dcca/qoriq-edgescale-eds/startup/ota-statuscheck
-+++ b/src/bitbucket.sw.nxp.com/dcca/qoriq-edgescale-eds/startup/ota-statuscheck
+--- a/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-statuscheck
++++ b/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-statuscheck
 @@ -6,7 +6,7 @@
  
  #!/bin/bash
@@ -32,8 +32,8 @@ index e01521a..39e4ac5 100755
  
 diff --git a/startup/ota-updateSet b/startup/ota-updateSet
 index 201db82..1fcc377 100755
---- a/src/bitbucket.sw.nxp.com/dcca/qoriq-edgescale-eds/startup/ota-updateSet
-+++ b/src/bitbucket.sw.nxp.com/dcca/qoriq-edgescale-eds/startup/ota-updateSet
+--- a/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-updateSet
++++ b/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-updateSet
 @@ -15,7 +15,7 @@
  #Status=2 Failed start linux on SD card,And it will rollback,get old version image.
  #
@@ -79,8 +79,8 @@ index 201db82..1fcc377 100755
  	else
 diff --git a/startup/startup.sh b/startup/startup.sh
 index affe1a3..e110358 100755
---- a/src/bitbucket.sw.nxp.com/dcca/qoriq-edgescale-eds/startup/startup.sh
-+++ b/src/bitbucket.sw.nxp.com/dcca/qoriq-edgescale-eds/startup/startup.sh
+--- a/src/github.com/NXP/qoriq-edgescale-eds/startup/startup.sh
++++ b/src/github.com/NXP/qoriq-edgescale-eds/startup/startup.sh
 @@ -20,13 +20,15 @@ push_publicip() {
  	curl -X POST -H "Content-Type: application/json; verson=$version" -H "access-token: $token" $url -d "$body"
  }
