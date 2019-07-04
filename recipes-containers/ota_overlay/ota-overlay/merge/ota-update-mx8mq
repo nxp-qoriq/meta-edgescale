@@ -1,0 +1,229 @@
+#!/bin/bash
+
+. /data/config.env
+
+dd if=/dev/mmcblk1 of=/tmp/ota-info bs=512 skip=129024 count=1
+updateStatus=`cat /tmp/ota-info | awk '{print $1}'`
+oldimageVersion=`cat /tmp/ota-info | awk '{print $3}'`
+sdplatform=`cat /tmp/ota-info | awk '{print $2}'`
+newimageVersion=`cat /tmp/ota-info | awk '{print $4}'`
+solutionname=`cat /tmp/ota-info | awk '{print $5}'`
+solutionid=`cat /tmp/ota-info | awk '{print $6}'`
+autoOta=`cat /tmp/ota-info | awk '{print $7}'`
+mid=`cat /tmp/ota-info | awk '{print $8}'`
+deviceid=$ES_DEVICEID
+platform=$(echo $deviceid | awk -F . '{print $4}')
+boardname=$platform"rdb"
+bootimageVersion=`cat /usr/local/edgescale/conf/edgescale-version | awk -F '-' '{print $2}'`
+
+if [ "$platform"x == x ];then
+	echo "there is no platform information"
+        exit 1
+fi
+
+if [ "$sdplatform"x != "$platform"x ];then
+	updateStatus=1
+	oldimageVersion=0
+fi
+
+echo "updateStatus="$updateStatus
+echo "oldimageVersion="$oldimageVersion
+echo "bootimageVersion="$bootimageVersion
+get_imageURL(){
+	api_result=`curl "$ES_API_URI/devices/softwares?device_id=$deviceid&solution=$solutionname&version=$imageVersion"`
+	imageURL=`echo $api_result | grep url | sed 's/\"//g' | sed 's/.*url:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
+	solutionid=`echo $api_result | grep sol_id | sed 's/\"//g' | sed 's/.*sol_id:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
+	have_installer=`echo $api_result | grep have_installer | sed 's/\"//g' | sed 's/.*have_installer:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
+	is_signed=`echo $api_result | grep is_signed | sed 's/\"//g' | sed 's/.*is_signed:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
+	public_key=`echo $api_result | grep public_key | sed 's/\"//g' | sed 's/.*public_key:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
+}
+
+get_newimageVersion(){
+	api_result=`curl "$ES_API_URI/devices/softwares?device_id=$deviceid&version=$bootimageVersion"`
+	imageURL=`echo $api_result | grep url | sed 's/\"//g' | sed 's/.*url:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
+	newimageVersion=`echo $api_result | grep version | sed 's/\"//g' | sed 's/.*version:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
+	solutionname=`echo $api_result | grep solution | sed 's/\"//g' | sed 's/.*solution:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
+	solutionid=`echo $api_result | grep sol_id | sed 's/\"//g' | sed 's/.*sol_id:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
+	is_signed=`echo $api_result | grep is_signed | sed 's/\"//g' | sed 's/.*is_signed:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
+	public_key=`echo $api_result | grep public_key | sed 's/\"//g' | sed 's/.*public_key:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
+	if [ "$imageURL"x == x ];then
+		echo "request version of image failed from server"
+		exit 1
+	fi
+}
+
+feedback_status(){
+	if [ $autoOta -eq 0 ];then
+		curl -X POST -H "Content-Type: application/json" $ES_API_URI/devices/tasks/status -d '{"device":"'$deviceid'", "mid":'$mid', "status":"'"$1"'"}'
+	fi
+}
+
+security_check(){
+	if [ "false"x = "$is_signed"x ]; then
+		echo "OEM signature not found in this solution"
+	else
+		result=`echo $public_key > /tmp/rsa.base`
+		result=`cat /tmp/rsa.base | base64 -d > /tmp/rsa.pub`
+		# Using public key verify OEM images(firmware, bootpartition and rootfs)
+		result=`openssl dgst -md5 -verify /tmp/rsa.pub -signature ./sign/$firmware_file.sign $firmware_file`
+		firmware_status=`echo $result | awk '{print $2}'`
+		result=`openssl dgst -md5 -verify /tmp/rsa.pub -signature ./sign/$kernel_file.sign $kernel_file`
+		kernel_status=`echo $result | awk '{print $2}'`
+		result=`openssl dgst -md5 -verify /tmp/rsa.pub -signature ./sign/$dtb_file.sign $dtb_file`
+		dtb_status=`echo $result | awk '{print $2}'`
+		result=`openssl dgst -md5 -verify /tmp/rsa.pub -signature ./sign/$rootfs_file.sign $rootfs_file`
+		rootfs_status=`echo $result | awk '{print $2}'`
+		verify_status="OK"
+		if [ "Failure"x = "$firmware_status"x ]; then
+			verify_status="Failure"
+		elif [ "Failure"x = "$kernel_status"x ]; then
+			verify_status="Failure"
+		elif [ "Failure"x = "$dtb_status"x ]; then
+			verify_status="Failure"
+		elif [ "Failure"x = "$rootfs_status"x ]; then
+			verify_status="Failure"
+		fi
+
+		if [ "OK"x = "$verify_status"x ]; then
+			echo "The solution image: "$result
+			echo "Atfer will Deploying image."
+		else
+			echo "The solution image: "$result "Please Checking this image!"
+			echo "The system will restart after 6 seconds."
+			sleep 6
+			reboot -f
+		fi
+	fi
+}
+
+setup_ima_evm(){
+        if [ -f "/usr/bin/sec_imaevm" ]; then
+            /usr/bin/sec_imaevm
+        fi
+}
+
+download_images(){
+	count=1
+	while [ $count -le 5 ]
+	do
+		wget -O /run/media/mmcblk1p3/full_images.tgz -c $imageURL
+		if [ $? != 0 ];then
+			((count++))
+			echo "retrying $count times"
+			sleep 5
+		else
+			break
+		fi
+	done
+
+	if [ $count -gt 5 ];then
+		reboot
+	fi
+}
+
+install_images(){
+	cd /run/media/mmcblk1p3/
+	tar zvxf $tgz_file
+
+	if [ ! -f "install.sh" ];then
+		firmware_file=`ls *u-boot.itb*`
+		kernel_file=`ls *Image*`
+		dtb_file=`ls *.dtb`
+		rootfs_file=`ls *rootfs*.tgz`
+		if [ ! -f "$firmware_file" ];then
+			echo "get firmware image error"
+			reboot
+		fi
+		if [ ! -f "$kernel_file" ];then
+			echo "get boot image error"
+			reboot
+		fi
+		if [ ! -f "$dtb_file" ];then
+			echo "get boot image error"
+			reboot
+		fi
+		if [ ! -f "$rootfs_file" ];then
+			echo "get rootfs image error"
+			reboot
+		fi
+		security_check
+		feedback_status "ota-install"
+		dd if=$firmware_file of=/dev/mmcblk1 bs=1k seek=1408 conv=fsync
+		mv $kernel_file $dtb_file /run/media/mmcblk1p1/
+		tar zxvf $rootfs_file -C /run/media/mmcblk1p2/
+		rm $firmware_file
+		rm $rootfs_file
+		setup_ima_evm
+	else
+		chmod +x ./install.sh
+		./install.sh
+		if [ $? != 0 ];then
+			reboot
+		fi
+	fi
+	cd ~/
+}
+
+mount_partition(){
+	mkfs.ext4 -F /dev/mmcblk1p1
+	mkfs.ext4 -F /dev/mmcblk1p2
+	for i in {1..4}
+	do
+		mkdir -p /run/media/mmcblk1p$i
+		mount /dev/mmcblk1p$i /run/media/mmcblk1p$i
+	done
+}
+
+umount_partition(){
+	for i in {1..4}
+	do
+		umount /dev/mmcblk1p$i
+	done
+}
+
+if [ "$updateStatus"x == 2x -a $oldimageVersion != 0 ];then
+	echo "Now need to rollback the image version=$oldimageVersion"
+	feedback_status "ota-rollback"
+	imageVersion=$oldimageVersion
+	mount_partition
+	cd /run/media/mmcblk1p3/
+	mv full_images.tgz.old full_images.tgz
+	tgz_file="full_images.tgz"
+	install_images
+	umount_partition
+	updateStatus=1
+	echo "$updateStatus $platform $oldimageVersion $imageVersion $solutionname $solutionid $autoOta $mid" > /tmp/ota-info
+	dd if=/tmp/ota-info of=/dev/mmcblk1 bs=512 seek=129024 count=1 conv=sync
+elif [ "$updateStatus"x == 4x ];then
+	echo "Now need to install the image version=$newimageVersion"
+	imageVersion=$newimageVersion
+	mount_partition
+	tgz_file="full_images.tgz"
+	install_images
+	umount_partition
+	updateStatus=1
+	echo "$updateStatus $platform $oldimageVersion $imageVersion $solutionname $solutionid $autoOta $mid" > /tmp/ota-info
+	dd if=/tmp/ota-info of=/dev/mmcblk1 bs=512 seek=129024 count=1 conv=sync
+else
+	echo "now will check the newest image and update it."
+	autoOta=1
+	get_newimageVersion
+	echo "newiamgeVersion: $newimageVersion, oldimageVersion: $oldimageVersion."
+	if [ $newimageVersion \> $oldimageVersion ];then
+		imageVersion=$newimageVersion
+		mount_partition
+		download_images
+		tgz_file="full_images.tgz"
+		install_images
+		umount_partition
+		updateStatus=1
+		echo "$updateStatus $platform $oldimageVersion $imageVersion $solutionname $solutionid $autoOta $mid" > /tmp/ota-info
+		dd if=/tmp/ota-info of=/dev/mmcblk1 bs=512 seek=129024 count=1 conv=sync
+	else
+		updateStatus=1
+		echo "$updateStatus $platform $oldimageVersion $oldimageVersion $solutionname $solutionid $autoOta $mid" > /tmp/ota-info
+		dd if=/tmp/ota-info of=/dev/mmcblk1 bs=512 seek=129024 count=1 conv=sync
+	fi
+fi
+	feedback_status "ota-reboot"
+reboot -f
