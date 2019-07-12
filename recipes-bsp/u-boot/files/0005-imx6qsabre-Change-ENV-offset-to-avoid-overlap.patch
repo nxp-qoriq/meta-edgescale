@@ -1,0 +1,28 @@
+From 11d77845f8b282e525d0eb5410d49532637bae7c Mon Sep 17 00:00:00 2001
+From: Alison Wang <alison.wang@nxp.com>
+Date: Fri, 31 May 2019 14:59:29 +0800
+Subject: [PATCH 5/6] imx6qsabre: Change ENV offset to avoid overlap
+
+This patch changes ENV offset to avoid overlap.
+
+Signed-off-by: Alison Wang <alison.wang@nxp.com>
+---
+ include/configs/mx6sabre_common.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/configs/mx6sabre_common.h b/include/configs/mx6sabre_common.h
+index c137612..4dda62c 100644
+--- a/include/configs/mx6sabre_common.h
++++ b/include/configs/mx6sabre_common.h
+@@ -181,7 +181,7 @@
+ #define CONFIG_ENV_SIZE			(8 * 1024)
+ 
+ #if defined(CONFIG_ENV_IS_IN_MMC)
+-#define CONFIG_ENV_OFFSET		(768 * 1024)
++#define CONFIG_ENV_OFFSET		(2176 * 1024)
+ #endif
+ 
+ /* Framebuffer */
+-- 
+2.7.4
+

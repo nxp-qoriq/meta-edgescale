@@ -1,0 +1,39 @@
+From ceb4fd2d34dda21270e68e6dcb45fc47b7960687 Mon Sep 17 00:00:00 2001
+From: Alison Wang <alison.wang@nxp.com>
+Date: Fri, 31 May 2019 10:21:13 +0800
+Subject: [PATCH 1/6] mx6sabresd: Remove CONFIG_SPL_DM to decrease the SPL size
+
+Currently the mx6qsabresd board does not boot:
+
+U-Boot SPL 2019.07-rc2 (May 16 2019 - 14:28:55 -0300)
+Trying to boot from MMC1
+spl: could not find mmc device 0. error: -19
+SPL: failed to boot from all boot devices
+
+The reason for the boot failure is that that the SPL
+size got greater than the 68KB limit (4KB header + 64KB max
+size) as explained in include/configs/imx6_spl.h.
+
+Remove the CONFIG_SPL_DM option, so that the SPL binary could
+fit into the allowed size and the board can boot again.
+
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+---
+ configs/mx6sabresd_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/configs/mx6sabresd_defconfig b/configs/mx6sabresd_defconfig
+index 0fda6fc..e81dc8a 100644
+--- a/configs/mx6sabresd_defconfig
++++ b/configs/mx6sabresd_defconfig
+@@ -66,7 +66,6 @@ CONFIG_SPL_OF_LIST="imx6dl-sabresd imx6q-sabresd imx6qp-sabresd"
+ CONFIG_SPL_MULTI_DTB_FIT_NO_COMPRESSION=y
+ CONFIG_ENV_IS_IN_MMC=y
+ CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG=y
+-CONFIG_SPL_DM=y
+ CONFIG_USB_FUNCTION_FASTBOOT=y
+ CONFIG_FASTBOOT_BUF_ADDR=0x12000000
+ CONFIG_FASTBOOT_BUF_SIZE=0x10000000
+-- 
+2.7.4
+

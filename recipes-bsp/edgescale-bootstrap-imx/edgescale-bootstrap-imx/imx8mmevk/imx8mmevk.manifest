@@ -1,0 +1,16 @@
+# [general]
+machine=imx8mmevk
+
+# [firmware_images]
+fbl=imx-boot-tools/fbl.bin
+uboot_itb=imx-boot-tools/u-boot.itb
+
+# [linux, dtb, rfs]
+kernel_img=Image
+device_tree=fsl-imx8mm-evk.dtb
+rootfs=fsl-image-edgescale-imx8mmevk.ext2.gz.u-boot
+
+# [distro autoboot script]
+uboot_scr=uboot-imx-env.bin
+uboot_scr2=uboot-imx-env2.bin
+

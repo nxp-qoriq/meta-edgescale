@@ -1,0 +1,43 @@
+From 824e8e3fcf79244f57888fb6273f164b4a474847 Mon Sep 17 00:00:00 2001
+From: Alison Wang <alison.wang@nxp.com>
+Date: Thu, 16 May 2019 11:40:23 +0800
+Subject: [PATCH 11/11] imx8m: spl: Update timeout value for Watchdog
+
+This patch updates timeout value for watchdog in SPL. It is used for
+Bootstrap U-Boot.
+
+Signed-off-by: Alison Wang <alison.wang@nxp.com>
+---
+ board/freescale/imx8mm_evk/spl.c | 2 +-
+ board/freescale/imx8mq_evk/spl.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/board/freescale/imx8mm_evk/spl.c b/board/freescale/imx8mm_evk/spl.c
+index 927e6c9..2e4b534 100644
+--- a/board/freescale/imx8mm_evk/spl.c
++++ b/board/freescale/imx8mm_evk/spl.c
+@@ -224,7 +224,7 @@ void enable_watchdog(void)
+ 	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
+ 	u16 timeout;
+ 
+-	timeout = 0x78;	/* 60s */
++	timeout = 0xF0;	/* about 120s */
+ 	writew(WCR_WDZST | WCR_WDBG | WCR_WDE | WCR_WDT | WCR_SRS |
+ 	       WCR_WDA | SET_WCR_WT(timeout), &wdog->wcr);
+ }
+diff --git a/board/freescale/imx8mq_evk/spl.c b/board/freescale/imx8mq_evk/spl.c
+index 6170ace..ecb8cf0 100644
+--- a/board/freescale/imx8mq_evk/spl.c
++++ b/board/freescale/imx8mq_evk/spl.c
+@@ -223,7 +223,7 @@ void enable_watchdog(void)
+ 	struct watchdog_regs *wdog = (struct watchdog_regs *)WDOG1_BASE_ADDR;
+ 	u16 timeout;
+ 
+-	timeout = 0x78;	/* 60s */
++	timeout = 0xF0;	/* about 120s */
+ 	writew(WCR_WDZST | WCR_WDBG | WCR_WDE | WCR_WDT | WCR_SRS |
+ 	       WCR_WDA | SET_WCR_WT(timeout), &wdog->wcr);
+ }
+-- 
+2.7.4
+

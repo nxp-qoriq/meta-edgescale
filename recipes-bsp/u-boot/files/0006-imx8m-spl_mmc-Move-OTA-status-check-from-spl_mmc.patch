@@ -1,0 +1,110 @@
+From 31b13e5dfd2de3086d7d427927372c6b802bcf6a Mon Sep 17 00:00:00 2001
+From: Alison Wang <alison.wang@nxp.com>
+Date: Wed, 8 May 2019 15:26:33 +0800
+Subject: [PATCH 06/11] imx8m: spl_mmc: Move OTA status check from spl_mmc
+
+This patch moves OTA status check from spl_mmc to the common file.
+
+Signed-off-by: Alison Wang <alison.wang@nxp.com>
+---
+ arch/arm/mach-imx/imx8m/image.c | 11 ++++++++
+ common/spl/spl_mmc.c            | 60 -----------------------------------------
+ 2 files changed, 11 insertions(+), 60 deletions(-)
+
+diff --git a/arch/arm/mach-imx/imx8m/image.c b/arch/arm/mach-imx/imx8m/image.c
+index f9bc57d..abc9cf6 100644
+--- a/arch/arm/mach-imx/imx8m/image.c
++++ b/arch/arm/mach-imx/imx8m/image.c
+@@ -100,3 +100,14 @@ unsigned long spl_nor_get_uboot_base(void)
+ 	printf("u-boot.itb location offset: 0x%lx\n", offset);
+ 	return (QSPI0_AMBA_BASE + offset);
+ }
++
++unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc)
++{
++	unsigned long sector = 0x300;
++
++	if (ota_status_check())
++		sector = 0xB00;
++
++	printf("u-boot.itb location sector: 0x%lx\n", sector);
++	return sector;
++}
+diff --git a/common/spl/spl_mmc.c b/common/spl/spl_mmc.c
+index b0d828c..12ba441 100644
+--- a/common/spl/spl_mmc.c
++++ b/common/spl/spl_mmc.c
+@@ -314,70 +314,10 @@ u32 __weak spl_boot_mode(const u32 boot_device)
+ #endif
+ }
+ 
+-struct OTA_parameter {
+-	char status;
+-	char str[0x200 - 1];
+-};
+-
+-int ota_status_check(struct mmc *mmc)
+-{
+-	unsigned int blk_start, blk_cnt;
+-	unsigned long offset, size;
+-	struct OTA_parameter data;
+-	struct blk_desc *desc = mmc_get_blk_desc(mmc);
+-	int result;
+-
+-	offset = 0x3f00000;
+-	size = 0x200;
+-	blk_start = ALIGN(offset, mmc->read_bl_len) / mmc->read_bl_len;
+-	blk_cnt = ALIGN(size, mmc->read_bl_len) / mmc->read_bl_len;
+-	blk_dread(desc, blk_start, blk_cnt, (uchar *)&data);
+-
+-	printf("status = %c\n", data.status);
+-	switch (data.status) {
+-	case '0':
+-		result = 1;
+-		break;
+-	case '1':
+-		result = 1;
+-		data.status = '2';
+-		blk_dwrite(desc, blk_start, blk_cnt, (uchar *)&data);
+-		blk_dread(desc, blk_start, blk_cnt, (uchar *)&data);
+-		printf("Update status = %c\n", data.status);
+-		break;
+-	case '2':
+-		result = 0;
+-		break;
+-	case '3':
+-		result = 0;
+-		break;
+-	case '4':
+-		result = 0;
+-		break;
+-	case '8':
+-		result = 1;
+-		break;
+-	default:
+-		result = 0;
+-	}
+-
+-	return result;
+-}
+-
+ #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
+ unsigned long __weak spl_mmc_get_uboot_raw_sector(struct mmc *mmc)
+ {
+-#ifdef CONFIG_ARCH_IMX8M
+-	unsigned long sector = 0x300;
+-
+-	if (ota_status_check(mmc))
+-		sector = 0xB00;
+-
+-	printf("u-boot.itb location sector: 0x%x\n", sector);
+-	return sector;
+-#else
+ 	return CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR;
+-#endif
+ }
+ #endif
+ 
+-- 
+2.7.4
+

@@ -1,0 +1,34 @@
+From 72aa1ceea60edade14ee24b52fc0c2a0b0b8aa50 Mon Sep 17 00:00:00 2001
+From: Alison Wang <alison.wang@nxp.com>
+Date: Wed, 5 Jun 2019 12:29:30 +0800
+Subject: [PATCH] ARM: dts: imx6qdl-sabresd: Enable WDOG1
+
+This patch enables WDOG1 and disables WDOG2 for imx6qdl-sabresd board.
+
+Signed-off-by: Alison Wang <alison.wang@nxp.com>
+---
+ arch/arm/boot/dts/imx6qdl-sabresd.dtsi |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
+index 7bd5680..21942fa 100644
+--- a/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-sabresd.dtsi
+@@ -1122,12 +1122,12 @@
+ };
+ 
+ &wdog1 {
+-	status = "disabled";
++	status = "okay";
+ };
+ 
+ &wdog2 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_wdog>;
+ 	fsl,ext-reset-output;
+-	status = "okay";
++	status = "disabled";
+ };
+-- 
+1.7.1
+

@@ -1,0 +1,11 @@
+[Unit]
+Description=edgescale
+After=network-online.target
+
+[Service]
+User=root
+Type=forking
+ExecStart=/bin/sh /usr/local/edgescale/bin/startup.sh 
+
+[Install]
+WantedBy=local-fs.target

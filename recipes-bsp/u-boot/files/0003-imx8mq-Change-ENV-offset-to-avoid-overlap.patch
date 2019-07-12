@@ -1,0 +1,28 @@
+From 4afc07d50aae03b6aa8f787ff9b52df5366e25cd Mon Sep 17 00:00:00 2001
+From: Alison Wang <alison.wang@nxp.com>
+Date: Wed, 17 Apr 2019 13:14:40 +0800
+Subject: [PATCH 03/11] imx8mq: Change ENV offset to avoid overlap
+
+This patch changes ENV offset to avoid overlap for Bootstrap U-Boot.
+
+Signed-off-by: Alison Wang <alison.wang@nxp.com>
+---
+ include/configs/imx8mq_evk.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/configs/imx8mq_evk.h b/include/configs/imx8mq_evk.h
+index f1825fc..9cb2003 100644
+--- a/include/configs/imx8mq_evk.h
++++ b/include/configs/imx8mq_evk.h
+@@ -203,7 +203,7 @@
+         (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
+ 
+ #define CONFIG_ENV_OVERWRITE
+-#define CONFIG_ENV_OFFSET               (64 * SZ_64K)
++#define CONFIG_ENV_OFFSET               (60 * SZ_64K)
+ #define CONFIG_ENV_SIZE			0x1000
+ #define CONFIG_SYS_MMC_ENV_DEV		1   /* USDHC2 */
+ #define CONFIG_MMCROOT			"/dev/mmcblk1p2"  /* USDHC2 */
+-- 
+2.7.4
+

@@ -1,0 +1,133 @@
+From 9f2953d67b5c4b049863733c8b9f0babfc8f4685 Mon Sep 17 00:00:00 2001
+From: Alison Wang <alison.wang@nxp.com>
+Date: Fri, 31 May 2019 14:52:27 +0800
+Subject: [PATCH 3/6] imx6qsabre: spl: Add OTA status check
+
+This patch adds OTA status check in SPL for I.MX6QSABRE. The address to
+load the secondary boot loader will be different according to the status.
+
+Signed-off-by: Alison Wang <alison.wang@nxp.com>
+---
+ arch/arm/mach-imx/mx6/Makefile |  2 +-
+ arch/arm/mach-imx/mx6/image.c  | 96 ++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 97 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm/mach-imx/mx6/image.c
+
+diff --git a/arch/arm/mach-imx/mx6/Makefile b/arch/arm/mach-imx/mx6/Makefile
+index 81e2913..451454e 100644
+--- a/arch/arm/mach-imx/mx6/Makefile
++++ b/arch/arm/mach-imx/mx6/Makefile
+@@ -6,7 +6,7 @@
+ # (C) Copyright 2011 Freescale Semiconductor, Inc.
+ 
+ obj-y	:= soc.o clock.o
+-obj-$(CONFIG_SPL_BUILD)	     += ddr.o
++obj-$(CONFIG_SPL_BUILD)	     += ddr.o image.o
+ obj-$(CONFIG_MP)             += mp.o
+ obj-$(CONFIG_MX6UL_LITESOM)  += litesom.o
+ obj-$(CONFIG_MX6UL_OPOS6UL)  += opos6ul.o
+diff --git a/arch/arm/mach-imx/mx6/image.c b/arch/arm/mach-imx/mx6/image.c
+new file mode 100644
+index 0000000..f097d29
+--- /dev/null
++++ b/arch/arm/mach-imx/mx6/image.c
+@@ -0,0 +1,96 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * Copyright 2019 NXP
++ */
++
++#include <common.h>
++#include <dm.h>
++#include <errno.h>
++#include <image.h>
++#include <linux/compiler.h>
++#include <mmc.h>
++#include <spl.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++struct OTA_parameter {
++	char status;
++	char str[0x200 - 1];
++};
++
++int ota_status_check(void)
++{
++	struct mmc *mmc;
++	struct blk_desc *bdesc;
++	unsigned int blk_start, blk_cnt;
++	unsigned long offset, size;
++	struct OTA_parameter data;
++	int result, err;
++	static int lresult = 2;
++
++	printf("lresult 0x%x\n", lresult);
++	if (lresult == 0 || lresult == 1)
++		return lresult;
++
++	mmc = find_mmc_device(0);
++	if (!mmc) {
++		printf("spl: could not find mmc device\n");
++		return -ENODEV;
++	}
++
++	err = mmc_init(mmc);
++	if (err) {
++		printf("spl: mmc_init failed\n");
++		return err;
++	}
++
++	bdesc = mmc_get_blk_desc(mmc);
++
++	offset = 0x3f00000;
++	size = 0x200;
++	blk_start = ALIGN(offset, mmc->read_bl_len) / mmc->read_bl_len;
++	blk_cnt = ALIGN(size, mmc->read_bl_len) / mmc->read_bl_len;
++	blk_dread(bdesc, blk_start, blk_cnt, (uchar *)&data);
++
++	printf("status = %c\n", data.status);
++	switch (data.status) {
++	case '0':
++		result = 1;
++		break;
++	case '1':
++		result = 1;
++		data.status = '2';
++		blk_dwrite(bdesc, blk_start, blk_cnt, (uchar *)&data);
++		blk_dread(bdesc, blk_start, blk_cnt, (uchar *)&data);
++		printf("Update status = %c\n", data.status);
++		break;
++	case '2':
++		result = 0;
++		break;
++	case '3':
++		result = 0;
++		break;
++	case '4':
++		result = 0;
++		break;
++	case '8':
++		result = 1;
++		break;
++	default:
++		result = 0;
++	}
++
++	lresult = result;
++	return result;
++}
++
++unsigned long spl_mmc_get_uboot_raw_sector(struct mmc *mmc)
++{
++	unsigned long sector = 0x900;
++
++	if (ota_status_check())
++		sector = 0x8A;
++
++	printf("u-boot.itb location sector: 0x%lx\n", sector);
++	return sector;
++}
+-- 
+2.7.4
+

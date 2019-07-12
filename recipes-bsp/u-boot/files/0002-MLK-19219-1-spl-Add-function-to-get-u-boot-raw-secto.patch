@@ -1,0 +1,44 @@
+From 26d0f482affd2089a0e0a963010188c7ab607415 Mon Sep 17 00:00:00 2001
+From: Alison Wang <alison.wang@nxp.com>
+Date: Fri, 31 May 2019 10:24:14 +0800
+Subject: [PATCH 2/6] MLK-19219-1 spl: Add function to get u-boot raw sector
+
+Add a weak function spl_mmc_get_uboot_raw_sector to get u-boot raw sector.
+At default it returns CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR. Users
+can overwrite it to return customized offset.
+
+Signed-off-by: Ye Li <ye.li@nxp.com>
+---
+ common/spl/spl_mmc.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/common/spl/spl_mmc.c b/common/spl/spl_mmc.c
+index 324d91c..ef01f8d 100644
+--- a/common/spl/spl_mmc.c
++++ b/common/spl/spl_mmc.c
+@@ -301,6 +301,13 @@ int spl_boot_partition(const u32 boot_device)
+ }
+ #endif
+ 
++#ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
++unsigned long __weak spl_mmc_get_uboot_raw_sector(struct mmc *mmc)
++{
++	return CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR;
++}
++#endif
++
+ int spl_mmc_load_image(struct spl_image_info *spl_image,
+ 		       struct spl_boot_device *bootdev)
+ {
+@@ -366,7 +373,7 @@ int spl_mmc_load_image(struct spl_image_info *spl_image,
+ #endif
+ #ifdef CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_USE_SECTOR
+ 		err = mmc_load_image_raw_sector(spl_image, mmc,
+-			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR);
++			spl_mmc_get_uboot_raw_sector(mmc));
+ 		if (!err)
+ 			return err;
+ #endif
+-- 
+2.7.4
+

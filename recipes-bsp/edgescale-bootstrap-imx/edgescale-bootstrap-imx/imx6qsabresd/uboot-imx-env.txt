@@ -1,0 +1,39 @@
+baudrate=115200
+board_name=SABRESD
+board_rev=MX6Q
+boot_fdt=try
+bootcmd=run mmcotaboot
+bootdelay=2
+bootscript=echo Running bootscript from mmc ...; source
+console=ttymxc0
+dfu_alt_info=spl raw 0x400
+dfu_alt_info_img=u-boot raw 0x10000
+dfu_alt_info_spl=spl raw 0x400
+dfuspi=dfu 0 sf 0:0:10000000:0
+emmcdev=2
+ethact=FEC
+ethaddr=00:04:9f:05:b5:e8
+ethprime=FEC
+fdt_addr=0x18000000
+fdt_file=undefined
+fdt_high=0xffffffff
+fdtcontroladdr=4e58bd38
+findfdt=if test $fdt_file = undefined; then if test $board_name = SABREAUTO && test $board_rev = MX6QP; then setenv fdt_file imx6qp-sabreauto.dtb; fi; if test $board_name = SABREAUTO && test $board_rev = MX6Q; then setenv fdt_file imx6q-sabreauto.dtb; fi; if test $board_name = SABREAUTO && test $board_rev = MX6DL; then setenv fdt_file imx6dl-sabreauto.dtb; fi; if test $board_name = SABRESD && test $board_rev = MX6QP; then setenv fdt_file imx6qp-sabresd.dtb; fi; if test $board_name = SABRESD && test $board_rev = MX6Q; then setenv fdt_file imx6q-sabresd.dtb; fi; if test $board_name = SABRESD && test $board_rev = MX6DL; then setenv fdt_file imx6dl-sabresd.dtb; fi; if test $fdt_file = undefined; then echo WARNING: Could not determine dtb to use; fi; fi;
+finduuid=part uuid mmc ${mmcdev}:2 uuid
+image=zImage
+initrd_high=0xffffffff
+ip_dyn=yes
+loadaddr=0x12000000
+loadbootscript=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};
+loadfdt=fatload mmc ${mmcdev}:${mmcpart} ${fdt_addr} ${fdt_file}
+loadimage=fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}
+mmcargs=setenv bootargs console=${console},${baudrate} root=PARTUUID=${uuid} rootwait rw
+mmcotaboot=echo Booting from ota ...;setenv bootargs console=ttymxc0,115200 root=/dev/ram0 rootwait rw ramdisk_size=0x2000000;mmc dev 1;mmc read ${fdt_addr} 0x2a00 0x600;mmc read ${loadaddr} 0x3000 0xd000;mmc read 0x12C00000 0x10000 0xf000;bootz ${loadaddr} 0x12C00000 ${fdt_addr}
+mmcdev=1
+mmcpart=1
+netargs=setenv bootargs console=${console},${baudrate} root=/dev/nfs ip=dhcp nfsroot=${serverip}:${nfsroot},v3,tcp
+netboot=echo Booting from net ...; run netargs; if test ${ip_dyn} = yes; then setenv get_cmd dhcp; else setenv get_cmd tftp; fi; ${get_cmd} ${image}; if test ${boot_fdt} = yes || test ${boot_fdt} = try; then if ${get_cmd} ${fdt_addr} ${fdt_file}; then bootz ${loadaddr} - ${fdt_addr}; else if test ${boot_fdt} = try; then bootz; else echo WARN: Cannot load the DT; fi; fi; else bootz; fi;
+script=boot.scr
+update_emmc_firmware=if test ${ip_dyn} = yes; then setenv get_cmd dhcp; else setenv get_cmd tftp; fi; if ${get_cmd} ${update_sd_firmware_filename}; then if mmc dev ${emmcdev} 1; then setexpr fw_sz ${filesize} / 0x200; setexpr fw_sz ${fw_sz} + 1; mmc write ${loadaddr} 0x2 ${fw_sz}; fi; fi
+update_sd_firmware=if test ${ip_dyn} = yes; then setenv get_cmd dhcp; else setenv get_cmd tftp; fi; if mmc dev ${mmcdev}; then if ${get_cmd} ${update_sd_firmware_filename}; then setexpr fw_sz ${filesize} / 0x200; setexpr fw_sz ${fw_sz} + 1; mmc write ${loadaddr} 0x2 ${fw_sz}; fi; fi
+

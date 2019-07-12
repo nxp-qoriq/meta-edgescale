@@ -1,0 +1,31 @@
+From b78ed29c022a1e420d6a2048dba63bc3d20afc61 Mon Sep 17 00:00:00 2001
+From: Chunrong Guo <chunrong.guo@nxp.com>
+Date: Mon, 3 Jun 2019 11:58:27 +0200
+Subject: [PATCH] Add the script to generate F(Q)SPI FBL Image
+
+Signed-off-by: C.r. Guo <nxa13725@lsv07005.swis.us-cdc01.nxp.com>
+---
+ scripts/fspi_packer_fbl.sh | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+ create mode 100755 scripts/fspi_packer_fbl.sh
+
+diff --git a/scripts/fspi_packer_fbl.sh b/scripts/fspi_packer_fbl.sh
+new file mode 100755
+index 0000000..0c5fa1a
+--- /dev/null
++++ b/scripts/fspi_packer_fbl.sh
+@@ -0,0 +1,11 @@
++#!/bin/sh
++
++mv fbl.bin qspi-fbl
++awk '{s="00000000"$1;l=length(s);if(!((NR-1)%4))printf "%08x ",(NR-1)*4;for(i=7;i>0;i-=2)printf " %s",substr(s,l-i,2);if(!(NR%4))printf "\n";}' $1 > qspi-tmp
++xxd -r qspi-tmp qspi-header
++dd if=qspi-header of=qspi-header.off bs=1k seek=1
++dd if=qspi-fbl of=qspi-fbl.off bs=1k seek=4
++dd if=qspi-header.off of=qspi-fbl.off conv=notrunc
++mv qspi-fbl.off fbl.bin
++rm qspi-tmp qspi-header* qspi-fbl*
++echo "F(Q)SPI IMAGE PACKED"
+-- 
+2.7.4
+

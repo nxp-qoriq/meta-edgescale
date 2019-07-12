@@ -1,0 +1,17 @@
+From 774d75c806ea49018edf4b50ea62c30defc37d26 Mon Sep 17 00:00:00 2001
+From: Chunrong Guo <chunrong.guo@nxp.com>
+Date: Tue, 4 Jun 2019 04:12:28 +0200
+Subject: [PATCH] fspi_packer_fbl.sh: change mod
+
+Signed-off-by: C.r. Guo <nxa13725@lsv07005.swis.us-cdc01.nxp.com>
+---
+ scripts/fspi_packer_fbl.sh | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ mode change 100644 => 100755 scripts/fspi_packer_fbl.sh
+
+diff --git a/scripts/fspi_packer_fbl.sh b/scripts/fspi_packer_fbl.sh
+old mode 100644
+new mode 100755
+-- 
+2.7.4
+

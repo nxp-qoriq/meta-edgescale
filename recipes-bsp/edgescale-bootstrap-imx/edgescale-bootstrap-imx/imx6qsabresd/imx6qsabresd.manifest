@@ -1,0 +1,16 @@
+# [general]
+machine=imx6qsabresd
+
+# [firmware_images]
+spl=SPL
+uboot_dtb=u-boot-dtb.img
+
+# [linux, dtb, rfs]
+kernel_img=zImage
+device_tree=imx6q-sabresd.dtb
+rootfs=fsl-image-edgescale-imx6qsabresd.ext2.gz.u-boot
+
+# [distro autoboot script]
+uboot_dtb_scr=uboot-imx-env.bin
+uboot_dtb_scr2=uboot-imx-env2.bin
+
