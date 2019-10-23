@@ -29,7 +29,7 @@ do_compile () {
         cp ${DEPLOY_DIR_IMAGE}/${BOOT_TOOLS}/u-boot-nodtb.bin-${MACHINE}-${UBOOT_CONFIG}    ${S}/${SOC_DIR}/u-boot-nodtb.bin
         cp ${DEPLOY_DIR_IMAGE}/${BOOT_TOOLS}/mkimage_uboot       ${S}/${SOC_DIR}/
         
-        if [ "${OTA}" = "true" ] && [ "${SOC_TARGET}" = "iMX8MM" ]; then
+        if [ "${SOC_TARGET}" = "iMX8MM" ]; then
             cp ${DEPLOY_DIR_IMAGE}/${BOOT_TOOLS}/bl31-imx8mm.bin ${S}/${SOC_DIR}/bl31.bin
         elif [ "${SOC_TARGET}" = "iMX8M" ]; then
             cp ${DEPLOY_DIR_IMAGE}/${BOOT_TOOLS}/bl31-imx8mq.bin ${S}/${SOC_DIR}/bl31.bin

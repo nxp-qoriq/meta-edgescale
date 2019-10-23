@@ -18,6 +18,7 @@ SRC_URI = "\
         git://github.com/joho/godotenv;nobranch=1;destsuffix=git/src/github.com/joho/godotenv;name=godotenv \
         git://github.com/edgeiot/est-client-go;nobranch=1;destsuffix=git/src/github.com/edgeiot/est-client-go;name=est-client-go \
         file://0001-imx-ota-support.patch \
+        file://0001-update-version-to-1909.patch \
         "
 SRCREV = "9b0090ae701547272e3670cbb12125d73f5e26ba"
 SRCREV_sys = "cb59ee3660675d463e86971646692ea3e470021c"

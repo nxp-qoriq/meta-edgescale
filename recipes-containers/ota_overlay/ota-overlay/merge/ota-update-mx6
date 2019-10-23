@@ -30,7 +30,7 @@ echo "updateStatus="$updateStatus
 echo "oldimageVersion="$oldimageVersion
 echo "bootimageVersion="$bootimageVersion
 get_imageURL(){
-	api_result=`curl "$ES_API_URI/devices/softwares?device_id=$deviceid&solution=$solutionname&version=$imageVersion"`
+        api_result=`curl -H "Accept: application/json; version=$version" -H "access-token: $(cat /data/.edgescale.cred)" "$ES_API_URI/devices/softwares?device_id=$deviceid&solution=$solutionname&version=$imageVersion"`
 	imageURL=`echo $api_result | grep url | sed 's/\"//g' | sed 's/.*url:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
 	solutionid=`echo $api_result | grep sol_id | sed 's/\"//g' | sed 's/.*sol_id:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
 	have_installer=`echo $api_result | grep have_installer | sed 's/\"//g' | sed 's/.*have_installer:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
@@ -39,7 +39,7 @@ get_imageURL(){
 }
 
 get_newimageVersion(){
-	api_result=`curl "$ES_API_URI/devices/softwares?device_id=$deviceid&version=$bootimageVersion"`
+        api_result=`curl -H "Accept: application/json; version=$version" -H "access-token: $(cat /data/.edgescale.cred)" "$ES_API_URI/devices/softwares?device_id=$deviceid&version=$bootimageVersion"`
 	imageURL=`echo $api_result | grep url | sed 's/\"//g' | sed 's/.*url:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
 	newimageVersion=`echo $api_result | grep version | sed 's/\"//g' | sed 's/.*version:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
 	solutionname=`echo $api_result | grep solution | sed 's/\"//g' | sed 's/.*solution:\(.*$\)/\1/' | awk -F "[,}]" '{print $1}' | sed 's/^[ \t]*//g'`
@@ -54,7 +54,7 @@ get_newimageVersion(){
 
 feedback_status(){
 	if [ $autoOta -eq 0 ];then
-		curl -X POST -H "Content-Type: application/json" $ES_API_URI/devices/tasks/status -d '{"device":"'$deviceid'", "mid":'$mid', "status":"'"$1"'"}'
+                curl -X POST -H "Content-Type: application/json; version=$version" -H "access-token: $(cat /data/.edgescale.cred)" $ES_API_URI/devices/tasks/status -d '{"device":"'$deviceid'", "mid":'$mid', "status":"'"$1"'"}'
 	fi
 }
 
