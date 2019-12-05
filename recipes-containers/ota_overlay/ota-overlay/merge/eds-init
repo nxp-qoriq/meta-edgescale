@@ -6,6 +6,7 @@
 start() {
 	printf "Starting eds-init: "
 	[ -d /data ] || mkdir /data/
+	update-ca-certificates
 	start-stop-daemon --start --startas /usr/bin/tee-supplicant --name tee-supplicant -m --pidfile /var/run/tee-supplicant.pid -b
 	/usr/sbin/dhcpcd
 	/usr/bin/network-check
