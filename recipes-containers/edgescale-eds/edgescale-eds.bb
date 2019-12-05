@@ -18,9 +18,8 @@ SRC_URI = "\
         git://github.com/joho/godotenv;nobranch=1;destsuffix=git/src/github.com/joho/godotenv;name=godotenv \
         git://github.com/edgeiot/est-client-go;nobranch=1;destsuffix=git/src/github.com/edgeiot/est-client-go;name=est-client-go \
         file://0001-imx-ota-support.patch \
-        file://0001-update-version-to-1909.patch \
         "
-SRCREV = "9b0090ae701547272e3670cbb12125d73f5e26ba"
+SRCREV = "72dc0afa0a7f90ddd091d43953634c6f94e8728f"
 SRCREV_sys = "cb59ee3660675d463e86971646692ea3e470021c"
 SRCREV_crypto = "ff983b9c42bc9fbf91556e191cc8efb585c16908"
 SRCREV_net = "927f97764cc334a6575f4b7a1584a147864d5723"
@@ -85,10 +84,21 @@ do_install() {
         install -d ${D}/${includedir}/cert-agent
         install -d ${D}/usr/local/edgescale/bin
         install -d ${D}/usr/local/edgescale/conf
+
+        if [ -n "${ES_CERTIFICATE_PATH}" ]; then
+          install -d ${D}/usr/local/share/ca-certificates
+          cp -fr ${ES_CERTIFICATE_PATH}/* ${D}/usr/local/share/ca-certificates
+        fi
+
         cp -r ${S}/import/vendor/cert-agent/cert-agent ${D}/usr/local/edgescale/bin
         cp -r ${S}/import/vendor/watchdog/es-watchdog  ${D}/usr/local/edgescale/bin
         cp -r ${S}/import/vendor/cert-agent/pkg ${D}/${includedir}/cert-agent/
         cp -r ${S}/src/${GO_IMPORT}/etc/edgescale-version ${D}/usr/local/edgescale/conf
+        cp -r ${S}/src/${GO_IMPORT}/etc/config.yml ${D}/usr/local/edgescale/conf
+
+        if [ -n "${ES_DOMAIN_SUFFIX}" ]; then
+          sed -i "s,api.*,api: https://api.${ES_DOMAIN_SUFFIX}/v1," ${D}/usr/local/edgescale/conf/config.yml
+        fi
 }
 
 do_install_append_imx() {

@@ -1,17 +1,17 @@
-From 15f918f476fdb77151fdb1f5a93bbe925f765cb2 Mon Sep 17 00:00:00 2001
-From: Chunrong Guo <chunrong.guo@nxp.com>
-Date: Fri, 21 Jun 2019 10:49:36 +0200
+From c7d9b98c43554723c0a2d83f142a6e59d50275fb Mon Sep 17 00:00:00 2001
+From: Zongchun Yu <zongchun.yu@nxp.com>
+Date: Wed, 4 Dec 2019 15:36:15 +0100
 Subject: [PATCH] imx ota support
 
-Signed-off-by: C.r. Guo <nxa13725@lsv07005.swis.us-cdc01.nxp.com>
+Signed-off-by: Zongchun Yu <zongchun.yu@nxp.com>
 ---
  startup/ota-statuscheck |  4 ++--
- startup/ota-updateSet   | 17 +++++++++--------
- startup/startup.sh      |  4 +++-
+ startup/ota-updateSet   | 15 ++++++++-------
+ startup/startup.sh      |  6 ++++--
  3 files changed, 14 insertions(+), 11 deletions(-)
 
 diff --git a/startup/ota-statuscheck b/startup/ota-statuscheck
-index e01521a..39e4ac5 100755
+index 9a091ad..2ac2be7 100755
 --- a/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-statuscheck
 +++ b/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-statuscheck
 @@ -6,7 +6,7 @@
@@ -31,15 +31,15 @@ index e01521a..39e4ac5 100755
 +dd if=/tmp/ota-info of=/dev/mmcblk1 bs=512 seek=129024 count=1 conv=sync
  
 diff --git a/startup/ota-updateSet b/startup/ota-updateSet
-index 201db82..1fcc377 100755
+index e7abe31..57be286 100755
 --- a/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-updateSet
 +++ b/src/github.com/NXP/qoriq-edgescale-eds/startup/ota-updateSet
 @@ -15,7 +15,7 @@
  #Status=2 Failed start linux on SD card,And it will rollback,get old version image.
  #
- #Status=8 The Solution images download completed,And it will automatically reboot and image installation in bootstrap image.
+ #Status=4 The Solution images download completed,And it will automatically reboot and image installation in bootstrap image.
 -/usr/local/edgescale/bin/cert-agent
-+/usr/local/edgescale/bin/cert-agent  -dev /dev/mmcblk1
++/usr/local/edgescale/bin/cert-agent -dev /dev/mmcblk1
  . /data/config.env
  
  updateStatus=`cat /tmp/ota-info | awk '{print $1}'`
@@ -48,29 +48,26 @@ index 201db82..1fcc377 100755
  download_images(){
  	feedback_status "ota-fetch"
 -	download_path=/backup/updateImages
-+        download_path=/run/media/mmcblk1p3
-+        mkdir -p /run/media
++	download_path=/run/media/mmcblk1p3
  	mkdir -p ${download_path}
--	if [ -e ${download_path}/full_images_deploy* ];then
--		rm -f ${download_path}/full_images_deploy*
--	fi
-+        mount /dev/mmcblk1p3 ${download_path}
-+        mv ${download_path}/full_images.tgz ${download_path}/full_images.tgz.old
-+
- 	count=0
- 	while [ $count -le 5 ]
- 	do
--		wget -O ${download_path}/full_images_deploy.tgz -c $imageURL
-+		wget -O ${download_path}/full_images.tgz -c $imageURL
- 		if [ $? != 0 ];then
- 			((count++))
- 			echo "retrying $count times"
-@@ -90,9 +91,9 @@ if [ $imageURL ];then
- 
- 	download_images
+-	if [ -e ${download_path}/full_images_deploy.tgz ];then
+-		mv ${download_path}/full_images_deploy.tgz ${download_path}/full_images_deploy_old.tgz
++	mount /dev/mmcblk1p3 ${download_path}
++	if [ -e ${download_path}/full_images.tgz ];then
++		mv ${download_path}/full_images.tgz ${download_path}/full_images.tgz.old
+ 	fi
+-	wget -O ${download_path}/full_images_deploy.tgz -c $imageURL -t 0 -T 300
++	wget -O ${download_path}/full_images.tgz -c $imageURL -t 0 -T 300
+ 	if [ $? != 0 ];then
+ 		echo "Connection timeout"
+-		rm -rf ${download_path}/full_images_deploy.tgz
++		rm -rf ${download_path}/full_images.tgz
+ 		sleep 5
+ 		return 1
+ 	else
+@@ -81,7 +82,7 @@ if [ $imageURL ];then
  	if [ $? -eq 0 ];then
--		updateStatus=8
-+		updateStatus=4
+ 		updateStatus=4
  		echo "$updateStatus $platform $oldimageVersion $newimageVersion $solutionname $solutionid $autoOta $mid" > /tmp/ota-info
 -		dd if=/tmp/ota-info of=/dev/mmcblk0 bs=512 seek=129024 count=1 conv=sync
 +		dd if=/tmp/ota-info of=/dev/mmcblk1 bs=512 seek=129024 count=1 conv=sync
@@ -78,19 +75,22 @@ index 201db82..1fcc377 100755
  		reboot
  	else
 diff --git a/startup/startup.sh b/startup/startup.sh
-index affe1a3..e110358 100755
+index 3b96139..2ac2ad7 100755
 --- a/src/github.com/NXP/qoriq-edgescale-eds/startup/startup.sh
 +++ b/src/github.com/NXP/qoriq-edgescale-eds/startup/startup.sh
-@@ -20,13 +20,15 @@ push_publicip() {
- 	curl -X POST -H "Content-Type: application/json; verson=$version" -H "access-token: $token" $url -d "$body"
+@@ -23,7 +23,9 @@ push_publicip() {
  }
  
-+echo 'V' > /dev/watchdog
-+
  cd /usr/local/edgescale/bin/
- mkdir -p /data
+-mkdir -p /data
++mkdir -p /data /backup
++
++mount /dev/mmcblk1p4 /backup
  
- ./env.sh
+ # trust the self-signed certificates before the first API call
+ update-ca-certificates
+@@ -35,7 +37,7 @@ update-ca-certificates
+ 
  start-stop-daemon --start --startas /usr/local/edgescale/bin/es-watchdog --name es-watchdog -m --pidfile /var/run/es-watchdog.pid -b
  start-stop-daemon --start --startas /bin/tee-supplicant --name tee-supplicant -m --pidfile /var/run/tee-supplicant.pid -b
 -./cert-agent
@@ -99,5 +99,5 @@ index affe1a3..e110358 100755
  . /data/config.env
  for env in $(set | grep ^ES)
 -- 
-2.7.4
+2.24.0
 
