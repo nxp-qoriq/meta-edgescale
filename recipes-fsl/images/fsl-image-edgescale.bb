@@ -14,6 +14,7 @@ IMAGE_INSTALL_append = " \
     ota-overlay \
     edgescale-eds \
     bash \
+    ca-certificates \
     coreutils \
     curl \
     net-tools \
