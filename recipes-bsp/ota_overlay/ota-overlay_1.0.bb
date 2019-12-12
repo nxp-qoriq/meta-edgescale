@@ -2,33 +2,55 @@ DESCRIPTION = "Merge prebuilt/extra files into rootfs"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420"
 
-inherit update-rc.d
+inherit systemd update-rc.d
 
 SIG = "${@bb.utils.contains('DISTRO_FEATURES', 'singleboot', 'true', 'false', d)}"
 MFT = "${@bb.utils.contains('DISTRO_FEATURES', 'mft', 'true', 'false', d)}"
 DEPENDS_append = " update-rc.d-native"
+
 SRC_URI = "file://merge"
+SRC_URI_append = " file://eds-init.service"
 S = "${WORKDIR}"
 
 INITSCRIPT_NAME = "eds-init"
+SYSTEMD_SERVICE_${PN} = "eds-init.service"
 
 MERGED_DST ?= "${bindir}"
-do_install () {
+do_install_qoriq () {
     install -d ${D}/${MERGED_DST}
     install -d ${D}${sysconfdir}/init.d
     install -d ${D}${sysconfdir}/rcS.d
     if [ "${MFT}" = "true" ];then
         sed -i "13,16c  \ \t /usr/bin/af-agent -host \$(ip route show | grep default | awk '{print \$3}')\n \t exit 0" ${WORKDIR}/merge/eds-init
     fi
-    install -m 0755    ${WORKDIR}/merge/eds-init       ${D}${sysconfdir}/init.d
-    #ln -s   ${D}${sysconfdir}/init.d/openil-init ${D}${sysconfdir}/rcS.d/S60openil-init
+    install -m 0755    ${WORKDIR}/merge/eds-init      ${D}${sysconfdir}/init.d/eds-init
     update-rc.d -r ${D} eds-init  start 30 5 .
+
     find ${WORKDIR}/merge/ -maxdepth 1 -mindepth 1 -not -name README \
     -exec install -m 0755  '{}' ${D}/${MERGED_DST}/ \;
     find ${WORKDIR}/merge/ -maxdepth 1 -mindepth 1 -exec rm -fr '{}' \;
     if [ "${SIG}" = "true" ];then
-	mv ${D}/${MERGED_DST}/ota-update-singleboot ${D}/${MERGED_DST}/ota-update
+        mv ${D}/${MERGED_DST}/ota-update-singleboot ${D}/${MERGED_DST}/ota-update
     fi
+    rm -rf  ${D}/${MERGED_DST}/*mx*
+}
+do_install_imx () {
+    install -d ${D}/${MERGED_DST}
+    install -D -p -m0644 ${WORKDIR}/eds-init.service ${D}${systemd_system_unitdir}/eds-init.service
+    install -m 0755    ${WORKDIR}/merge/eds-init-imx  ${D}/usr/bin/eds-init
+    find ${WORKDIR}/merge/ -maxdepth 1 -mindepth 1 -not -name README \
+    -exec install -m 0755  '{}' ${D}/${MERGED_DST}/ \;
+    find ${WORKDIR}/merge/ -maxdepth 1 -mindepth 1 -exec rm -fr '{}' \;
+    mv ${D}/${MERGED_DST}/ota-update-imx ${D}/${MERGED_DST}/ota-update
+}
+
+do_install_append_mx6 () {
+    sed -i "s:/dev/mmcblk1:/dev/mmcblk2:" ${D}/usr/bin/eds-init
+    mv ${D}/${MERGED_DST}/ota-update-mx6 ${D}/${MERGED_DST}/ota-update
+}
+
+do_install_append_mx8mq () {
+    mv ${D}/${MERGED_DST}/ota-update-mx8mq ${D}/${MERGED_DST}/ota-update
 }
 
 do_unpack[nostamp] = "1"
