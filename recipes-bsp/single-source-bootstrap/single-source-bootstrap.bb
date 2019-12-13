@@ -11,17 +11,20 @@ SRC_URI = "file://create_single_boot_image.sh \
     file://${MACHINE}/env_bootstrap.img \
     file://mft-environment/env_bootstrap.img \
 "
+SRC_URI_append_ls1021atwr = "file://gen_flash_image.pl \
+    file://${MACHINE}/flashmap_nor.cfg \
+    file://${MACHINE}/uboot_env_nor.txt \
+"
 
-inherit deploy
+inherit deploy  perlnative
 
 #set ROOTFS_IMAGE = "fsl-image-edgescale" in local.conf
 #set KERNEL_ITS = "kernel-all.its" in local.conf
-ROOTFS_IMAGE = "fsl-image-edgescale"
-KERNEL_ITS = "kernel-all.its" 
 ITB_IMAGE = "fsl-image-kernelitb"
-ITB_IMAGE_ls1021atwr = "virtual/kernel"
-DEPENDS = "u-boot-mkimage-native cst-native atf"
-DEPENDS_ls1021atwr = "u-boot-mkimage-native cst-native u-boot"
+ITB_IMAGE_ls1021atwr = "fsl-image-edgescale"
+DEPENDS = "u-boot-mkimage-native cst-native"
+DEPENDS_append_qoriq-arm64 = " atf"
+DEPENDS_append_ls1021atwr = " u-boot perl-native libstring-crc32-perl-native"
 do_deploy[depends] += "virtual/kernel:do_deploy ${ITB_IMAGE}:do_build"
 
 BOOT_TYPE ??= ""
@@ -76,6 +79,13 @@ do_deploy () {
     fi
 }
 
-addtask deploy before do_build after do_compile
+do_deploy_ls1021atwr () {
+    rm -rf ${DEPLOY_DIR_IMAGE}/single-source-bootstrap
+    mkdir ${DEPLOY_DIR_IMAGE}/single-source-bootstrap
+    ./gen_flash_image.pl -c ${MACHINE}/flashmap_nor.cfg -e ${MACHINE}/uboot_env_nor.txt -d ${DEPLOY_DIR_IMAGE} -o  ${MACHINE}-nor.img
+    cp ${MACHINE}-nor.img ${DEPLOY_DIR_IMAGE}/single-source-bootstrap/firmware_${MACHINE}_uboot_norboot.img
+}
 
+addtask deploy before do_build after do_compile
 PACKAGE_ARCH = "${MACHINE_ARCH}"
+COMPATIBLE_MACHINE = "(qoriq)"
