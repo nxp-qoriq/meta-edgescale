@@ -17,6 +17,8 @@ IMAGE_INSTALL_append = " \
     ca-certificates \
     coreutils \
     curl \
+    parted  \
+    mtd-utils  \
     net-tools \
     util-linux-fdisk \
     util-linux-lsblk \
