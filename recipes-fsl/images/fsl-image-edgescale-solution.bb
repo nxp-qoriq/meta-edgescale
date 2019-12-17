@@ -49,6 +49,8 @@ IMAGE_INSTALL_append_ls1012a = " \
     ppfe-firmware \
 "
 
+EXTRA_IMAGEDEPENDS += " secure-boot-qoriq"
+
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 IMAGE_FSTYPES = "tar.gz ext2.gz ext2.gz.u-boot"
 

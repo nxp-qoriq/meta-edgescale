@@ -6,4 +6,4 @@ SRC_URI_append = " file://0001-lsdk.config-fix-issue-for-unset-ramdisk-size-in-L
 "
 
 DELTA_KERNEL_DEFCONFIG = "${@bb.utils.contains('DISTRO_FEATURES', 'ima-evm', 'ima-evm.config', '', d)}"
-#DELTA_KERNEL_DEFCONFIG = "${@bb.utils.contains('DISTRO_FEATURES', 'singleboot', 'edgescale_demo_kernel.config', '', d)}"
+DELTA_KERNEL_DEFCONFIG = "${@bb.utils.contains('DISTRO_FEATURES', 'singleboot', 'edgescale_demo_kernel.config', '', d)}"
