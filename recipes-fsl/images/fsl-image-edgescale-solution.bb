@@ -20,6 +20,7 @@ IMAGE_INSTALL_append = " \
     bash \
     coreutils \
     curl \
+    mosquitto \
     net-tools \
     util-linux-fdisk \
     util-linux-lsblk \
