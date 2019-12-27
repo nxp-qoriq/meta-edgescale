@@ -17,8 +17,9 @@ SRC_URI = "\
         git://github.com/go-yaml/yaml.git;nobranch=1;destsuffix=git/src/gopkg.in/yaml.v2;name=yaml \
         git://github.com/joho/godotenv;nobranch=1;destsuffix=git/src/github.com/joho/godotenv;name=godotenv \
         git://github.com/edgeiot/est-client-go;nobranch=1;destsuffix=git/src/github.com/edgeiot/est-client-go;name=est-client-go \
-        file://0001-imx-ota-support.patch \
-        "
+"       
+SRC_URI_append_imx = "  file://0001-imx-ota-support.patch \
+"
 SRCREV = "72dc0afa0a7f90ddd091d43953634c6f94e8728f"
 SRCREV_sys = "cb59ee3660675d463e86971646692ea3e470021c"
 SRCREV_crypto = "ff983b9c42bc9fbf91556e191cc8efb585c16908"
@@ -57,6 +58,8 @@ export CROSS_COMPILE="${WRAP_TARGET_PREFIX}"
 export OPENSSL_PATH="${RECIPE_SYSROOT}/usr"
 export SECURE_OBJ_PATH="${RECIPE_SYSROOT}/usr"
 export OPTEE_CLIENT_EXPORT="${RECIPE_SYSROOT}/usr/"
+
+EDS = "${@bb.utils.contains('DISTRO_FEATURES', 'edgescale', 'true', 'false', d)}"
 
 do_compile() {
         export GOARCH="${TARGET_GOARCH}"
@@ -102,11 +105,13 @@ do_install() {
 }
 
 do_install_append_qoriq() {
-    cp -r ${S}/import/vendor/mq-agent/mq-agent ${D}/usr/local/edgescale/bin
-    cp -r ${S}/src/${GO_IMPORT}/startup/*.sh ${D}/usr/local/edgescale/bin
-    cp -r ${S}/src/${GO_IMPORT}/startup/ota-* ${D}/usr/local/edgescale/bin
-    sed -i "s:/bin/tee-supplicant:/usr/bin/tee-supplicant:" ${D}/usr/local/edgescale/bin/startup.sh
-    sed -i -e '/es-watchdog/d' ${D}/usr/local/edgescale/bin/startup.sh
+    if [ "${EDS}" = "true" ];then
+        cp -r ${S}/import/vendor/mq-agent/mq-agent ${D}/usr/local/edgescale/bin
+        cp -r ${S}/src/${GO_IMPORT}/startup/*.sh ${D}/usr/local/edgescale/bin
+        cp -r ${S}/src/${GO_IMPORT}/startup/ota-* ${D}/usr/local/edgescale/bin
+        sed -i "s:/bin/tee-supplicant:/usr/bin/tee-supplicant:" ${D}/usr/local/edgescale/bin/startup.sh
+        sed -i -e '/es-watchdog/d' ${D}/usr/local/edgescale/bin/startup.sh
+    fi
 }
 
 do_install_append_imx() {
