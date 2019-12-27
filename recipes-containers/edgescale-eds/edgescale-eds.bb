@@ -20,6 +20,8 @@ SRC_URI = "\
 "       
 SRC_URI_append_imx = "  file://0001-imx-ota-support.patch \
 "
+SRC_URI_append_qoriq = "  file://0001-fix-solution.patch \
+"
 SRCREV = "72dc0afa0a7f90ddd091d43953634c6f94e8728f"
 SRCREV_sys = "cb59ee3660675d463e86971646692ea3e470021c"
 SRCREV_crypto = "ff983b9c42bc9fbf91556e191cc8efb585c16908"

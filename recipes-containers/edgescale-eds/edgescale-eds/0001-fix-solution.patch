@@ -1,0 +1,25 @@
+From 7831bbb23067c9303afb169700667e89d8930e8b Mon Sep 17 00:00:00 2001
+From: "Chunrong.guo" <chunrong.guo@nxp.com>
+Date: Fri, 27 Dec 2019 07:57:13 +0100
+Subject: [PATCH] fix solution
+
+---
+ startup/startup.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/github.com/NXP/qoriq-edgescale-eds/startup/startup.sh a/src/github.com/NXP/qoriq-edgescale-eds/startup/startup.sh
+index 3b96139..53efac9 100755
+--- a/src/github.com/NXP/qoriq-edgescale-eds/startup/startup.sh
++++ b/src/github.com/NXP/qoriq-edgescale-eds/startup/startup.sh
+@@ -23,7 +23,7 @@ push_publicip() {
+ }
+ 
+ cd /usr/local/edgescale/bin/
+-mkdir -p /data
++mkdir -p /data /backup
+ 
+ # trust the self-signed certificates before the first API call
+ update-ca-certificates
+-- 
+2.17.1
+
