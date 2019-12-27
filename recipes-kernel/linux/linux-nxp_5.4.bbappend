@@ -6,6 +6,8 @@ SIG_PATCHES = " file://edgescale_demo_kernel.config \
 "
 SRC_URI_append = " ${@bb.utils.contains('DISTRO_FEATURES', 'ima-evm', '${IMA_PATCHES}', '', d)}"
 SRC_URI_append = " ${@bb.utils.contains('DISTRO_FEATURES', 'singleboot', '${SIG_PATCHES}', '', d)}"
+SRC_URI_append = " ${@bb.utils.contains('DISTRO_FEATURES', 'edgescale', '${SIG_PATCHES}', '', d)}"
 
 DELTA_KERNEL_DEFCONFIG = "${@bb.utils.contains('DISTRO_FEATURES', 'ima-evm', 'ima-evm.config', '', d)}"
 DELTA_KERNEL_DEFCONFIG = "${@bb.utils.contains('DISTRO_FEATURES', 'singleboot', 'edgescale_demo_kernel.config', '', d)}"
+DELTA_KERNEL_DEFCONFIG = "${@bb.utils.contains('DISTRO_FEATURES', 'edgescale', 'edgescale_demo_kernel.config', '', d)}"
