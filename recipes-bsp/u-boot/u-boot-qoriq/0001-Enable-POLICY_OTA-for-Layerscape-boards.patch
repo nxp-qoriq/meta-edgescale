@@ -1,9 +1,9 @@
-From 26d7fe5e98ad8abb2b651dc632cee3b4f4233dc1 Mon Sep 17 00:00:00 2001
+From 8521b9e89e0a6a8480588d0fc27048c64a49320c Mon Sep 17 00:00:00 2001
 From: Chunrong Guo <chunrong.guo@nxp.com>
-Date: Thu, 12 Dec 2019 08:32:36 +0530
+Date: Mon, 6 Jan 2020 02:58:26 +0100
 Subject: [PATCH] Enable POLICY_OTA for Layerscape boards
 
-Signed-off-by: chunrong.guo <nxa13725@nxp.com>
+Signed-off-by: Chunrong.guo <chunrong.guo@nxp.com>
 ---
  arch/arm/cpu/armv8/fsl-layerscape/Kconfig     | 17 ++++++++
  arch/arm/cpu/armv8/fsl-layerscape/cpu.c       |  3 ++
@@ -45,7 +45,7 @@ Signed-off-by: chunrong.guo <nxa13725@nxp.com>
  37 files changed, 188 insertions(+), 21 deletions(-)
 
 diff --git a/arch/arm/cpu/armv8/fsl-layerscape/Kconfig b/arch/arm/cpu/armv8/fsl-layerscape/Kconfig
-index 9f6a933b47..20b3fc9485 100644
+index 42ca990994..9e7d3b841b 100644
 --- a/arch/arm/cpu/armv8/fsl-layerscape/Kconfig
 +++ b/arch/arm/cpu/armv8/fsl-layerscape/Kconfig
 @@ -600,3 +600,20 @@ config HAS_FSL_XHCI_USB
@@ -97,10 +97,10 @@ index 31e41ce169..276c1019cb 100644
  }
  
 diff --git a/board/freescale/ls1012ardb/ls1012ardb.c b/board/freescale/ls1012ardb/ls1012ardb.c
-index e4527c19b8..dcbb9ddb7b 100644
+index f4aaa71bb6..366f6674d2 100644
 --- a/board/freescale/ls1012ardb/ls1012ardb.c
 +++ b/board/freescale/ls1012ardb/ls1012ardb.c
-@@ -84,6 +84,7 @@ int checkboard(void)
+@@ -99,6 +99,7 @@ int checkboard(void)
  
  	puts("Board: LS1012A2G5RDB ");
  #endif
@@ -173,7 +173,7 @@ index e493483c89..73adf987df 100644
  }
  
 diff --git a/configs/ls1012afrwy_tfa_SECURE_BOOT_defconfig b/configs/ls1012afrwy_tfa_SECURE_BOOT_defconfig
-index 2e715343c4..c98e1cf010 100644
+index c2eb599229..f7ddc6195a 100644
 --- a/configs/ls1012afrwy_tfa_SECURE_BOOT_defconfig
 +++ b/configs/ls1012afrwy_tfa_SECURE_BOOT_defconfig
 @@ -27,6 +27,8 @@ CONFIG_CMD_USB=y
@@ -185,13 +185,13 @@ index 2e715343c4..c98e1cf010 100644
  CONFIG_NET_RANDOM_ETHADDR=y
  CONFIG_DM=y
  CONFIG_SATA_CEVA=y
-@@ -55,3 +57,4 @@ CONFIG_USB_XHCI_DWC3=y
- CONFIG_RSA=y
- CONFIG_CMD_SETEXPR=y
- CONFIG_RSA_SOFTWARE_EXP=y
+@@ -58,3 +60,4 @@ CONFIG_RSA_SOFTWARE_EXP=y
+ CONFIG_DM_I2C=y
+ CONFIG_DM_GPIO=y
+ CONFIG_DM_RTC=y
 +CONFIG_POLICY_OTA=y
 diff --git a/configs/ls1012afrwy_tfa_defconfig b/configs/ls1012afrwy_tfa_defconfig
-index 65ed34e583..bc35cd15a9 100644
+index 14b1716b03..494b3ba3d5 100644
 --- a/configs/ls1012afrwy_tfa_defconfig
 +++ b/configs/ls1012afrwy_tfa_defconfig
 @@ -27,6 +27,7 @@ CONFIG_CMD_USB=y
@@ -202,13 +202,13 @@ index 65ed34e583..bc35cd15a9 100644
  CONFIG_ENV_IS_IN_SPI_FLASH=y
  CONFIG_NET_RANDOM_ETHADDR=y
  CONFIG_DM=y
-@@ -53,3 +54,4 @@ CONFIG_USB=y
- CONFIG_DM_USB=y
- CONFIG_USB_XHCI_HCD=y
- CONFIG_USB_XHCI_DWC3=y
+@@ -60,3 +61,4 @@ CONFIG_USB_XHCI_DWC3=y
+ CONFIG_DM_I2C=y
+ CONFIG_DM_GPIO=y
+ CONFIG_DM_RTC=y
 +CONFIG_POLICY_OTA=y
 diff --git a/configs/ls1012ardb_tfa_SECURE_BOOT_defconfig b/configs/ls1012ardb_tfa_SECURE_BOOT_defconfig
-index 438aa29547..5fe95a871c 100644
+index 342fac6083..2d18faca68 100644
 --- a/configs/ls1012ardb_tfa_SECURE_BOOT_defconfig
 +++ b/configs/ls1012ardb_tfa_SECURE_BOOT_defconfig
 @@ -31,6 +31,8 @@ CONFIG_CMD_SETEXPR=y
@@ -229,13 +229,13 @@ index 438aa29547..5fe95a871c 100644
  CONFIG_E1000=y
  CONFIG_PCI=y
  CONFIG_DM_PCI=y
-@@ -57,3 +61,4 @@ CONFIG_USB_XHCI_HCD=y
- CONFIG_USB_XHCI_DWC3=y
- CONFIG_RSA=y
- CONFIG_RSA_SOFTWARE_EXP=y
+@@ -60,3 +64,4 @@ CONFIG_RSA_SOFTWARE_EXP=y
+ CONFIG_DM_I2C=y
+ CONFIG_DM_GPIO=y
+ CONFIG_DM_RTC=y
 +CONFIG_POLICY_OTA=y
 diff --git a/configs/ls1012ardb_tfa_defconfig b/configs/ls1012ardb_tfa_defconfig
-index d3b38cea10..1001d3f773 100644
+index 11e04470c8..159e1db162 100644
 --- a/configs/ls1012ardb_tfa_defconfig
 +++ b/configs/ls1012ardb_tfa_defconfig
 @@ -29,6 +29,7 @@ CONFIG_CMD_USB=y
@@ -246,10 +246,10 @@ index d3b38cea10..1001d3f773 100644
  CONFIG_ENV_IS_IN_SPI_FLASH=y
  CONFIG_NET_RANDOM_ETHADDR=y
  CONFIG_DM=y
-@@ -57,3 +58,4 @@ CONFIG_USB=y
- CONFIG_DM_USB=y
- CONFIG_USB_XHCI_HCD=y
- CONFIG_USB_XHCI_DWC3=y
+@@ -60,3 +61,4 @@ CONFIG_USB_XHCI_DWC3=y
+ CONFIG_DM_I2C=y
+ CONFIG_DM_GPIO=y
+ CONFIG_DM_RTC=y
 +CONFIG_POLICY_OTA=y
 diff --git a/configs/ls1028ardb_tfa_SECURE_BOOT_defconfig b/configs/ls1028ardb_tfa_SECURE_BOOT_defconfig
 index fd3e314dab..19468a1a7f 100644
@@ -270,7 +270,7 @@ index db86521d54..1bb605f116 100644
  CONFIG_EFI_LOADER_BOUNCE_BUFFER=y
 +CONFIG_POLICY_OTA=y
 diff --git a/configs/ls1043ardb_tfa_SECURE_BOOT_defconfig b/configs/ls1043ardb_tfa_SECURE_BOOT_defconfig
-index dad3eab9a7..7b54bc8c8f 100644
+index 28fd2f3002..62510176ff 100644
 --- a/configs/ls1043ardb_tfa_SECURE_BOOT_defconfig
 +++ b/configs/ls1043ardb_tfa_SECURE_BOOT_defconfig
 @@ -12,6 +12,7 @@ CONFIG_OF_BOARD_SETUP=y
@@ -281,19 +281,19 @@ index dad3eab9a7..7b54bc8c8f 100644
  CONFIG_MISC_INIT_R=y
  CONFIG_CMD_IMLS=y
  CONFIG_CMD_GPT=y
-@@ -54,3 +55,4 @@ CONFIG_SPL_RSA=y
- CONFIG_RSA_SOFTWARE_EXP=y
- CONFIG_EFI_LOADER_BOUNCE_BUFFER=y
+@@ -56,3 +57,4 @@ CONFIG_EFI_LOADER_BOUNCE_BUFFER=y
  CONFIG_CMD_SETEXPR=y
+ CONFIG_DM_I2C=y
+ CONFIG_DM_GPIO=y
 +CONFIG_POLICY_OTA=y
 diff --git a/configs/ls1043ardb_tfa_defconfig b/configs/ls1043ardb_tfa_defconfig
-index 75bb52ad4a..5160e0a1cc 100644
+index 4eca972807..bd9263c2ff 100644
 --- a/configs/ls1043ardb_tfa_defconfig
 +++ b/configs/ls1043ardb_tfa_defconfig
-@@ -53,3 +53,4 @@ CONFIG_DM_USB=y
- CONFIG_USB_XHCI_HCD=y
- CONFIG_USB_XHCI_DWC3=y
+@@ -55,3 +55,4 @@ CONFIG_USB_XHCI_DWC3=y
  CONFIG_EFI_LOADER_BOUNCE_BUFFER=y
+ CONFIG_DM_I2C=y
+ CONFIG_DM_GPIO=y
 +CONFIG_POLICY_OTA=y
 diff --git a/configs/ls1046afrwy_tfa_SECURE_BOOT_defconfig b/configs/ls1046afrwy_tfa_SECURE_BOOT_defconfig
 index aa293302f5..c2618d74a6 100644
@@ -313,16 +313,16 @@ index aa293302f5..c2618d74a6 100644
  CONFIG_CMD_SETEXPR=y
 +CONFIG_POLICY_OTA=y
 diff --git a/configs/ls1046afrwy_tfa_defconfig b/configs/ls1046afrwy_tfa_defconfig
-index 1d27408762..7a63128a3d 100644
+index b7ea92d632..bfb46c9bf0 100644
 --- a/configs/ls1046afrwy_tfa_defconfig
 +++ b/configs/ls1046afrwy_tfa_defconfig
-@@ -54,3 +54,4 @@ CONFIG_USB=y
- CONFIG_DM_USB=y
- CONFIG_USB_XHCI_HCD=y
+@@ -60,3 +60,4 @@ CONFIG_USB_XHCI_HCD=y
  CONFIG_USB_XHCI_DWC3=y
+ CONFIG_DM_I2C=y
+ CONFIG_DM_GPIO=y
 +CONFIG_POLICY_OTA=y
 diff --git a/configs/ls1046ardb_tfa_SECURE_BOOT_defconfig b/configs/ls1046ardb_tfa_SECURE_BOOT_defconfig
-index 957d041355..bfc6cab364 100644
+index 4a2cbd27fb..29bc1ec437 100644
 --- a/configs/ls1046ardb_tfa_SECURE_BOOT_defconfig
 +++ b/configs/ls1046ardb_tfa_SECURE_BOOT_defconfig
 @@ -14,6 +14,7 @@ CONFIG_OF_BOARD_SETUP=y
@@ -333,19 +333,19 @@ index 957d041355..bfc6cab364 100644
  CONFIG_MISC_INIT_R=y
  CONFIG_CMD_GPT=y
  CONFIG_CMD_I2C=y
-@@ -54,3 +55,4 @@ CONFIG_USB_XHCI_DWC3=y
- CONFIG_RSA=y
- CONFIG_EFI_LOADER_BOUNCE_BUFFER=y
+@@ -56,3 +57,4 @@ CONFIG_EFI_LOADER_BOUNCE_BUFFER=y
  CONFIG_CMD_SETEXPR=y
+ CONFIG_DM_I2C=y
+ CONFIG_DM_GPIO=y
 +CONFIG_POLICY_OTA=y
 diff --git a/configs/ls1046ardb_tfa_defconfig b/configs/ls1046ardb_tfa_defconfig
-index 1aca8ef13e..bbca52c015 100644
+index c7a46b1247..9c7b32f9ac 100644
 --- a/configs/ls1046ardb_tfa_defconfig
 +++ b/configs/ls1046ardb_tfa_defconfig
-@@ -54,3 +54,4 @@ CONFIG_DM_USB=y
- CONFIG_USB_XHCI_HCD=y
- CONFIG_USB_XHCI_DWC3=y
+@@ -56,3 +56,4 @@ CONFIG_USB_XHCI_DWC3=y
  CONFIG_EFI_LOADER_BOUNCE_BUFFER=y
+ CONFIG_DM_I2C=y
+ CONFIG_DM_GPIO=y
 +CONFIG_POLICY_OTA=y
 diff --git a/configs/ls1088ardb_tfa_SECURE_BOOT_defconfig b/configs/ls1088ardb_tfa_SECURE_BOOT_defconfig
 index 535fb0e6fd..1388d26404 100644
@@ -360,12 +360,12 @@ index 535fb0e6fd..1388d26404 100644
  # CONFIG_DISPLAY_BOARDINFO is not set
  CONFIG_DISPLAY_BOARDINFO_LATE=y
 diff --git a/configs/ls1088ardb_tfa_defconfig b/configs/ls1088ardb_tfa_defconfig
-index 4532d851d9..026f2c3570 100644
+index 27d7ff7574..f8def0f36e 100644
 --- a/configs/ls1088ardb_tfa_defconfig
 +++ b/configs/ls1088ardb_tfa_defconfig
-@@ -70,3 +70,4 @@ CONFIG_USB_XHCI_DWC3=y
- CONFIG_USB_DWC3=y
- CONFIG_USB_GADGET=y
+@@ -74,3 +74,4 @@ CONFIG_USB_ETHER_ASIX88179=y
+ CONFIG_USB_HOST_ETHER=y
+ CONFIG_USB_ETHER_RTL8152=y
  CONFIG_EFI_LOADER_BOUNCE_BUFFER=y
 +CONFIG_POLICY_OTA=y
 diff --git a/configs/ls2088ardb_tfa_SECURE_BOOT_defconfig b/configs/ls2088ardb_tfa_SECURE_BOOT_defconfig
@@ -601,10 +601,10 @@ index 98320e22e9..99dd646e05 100644
  	"run emmc_hdploadcmd; run distro_bootcmd;run emmc_bootcmd; " \
  	"env exists secureboot && esbc_halt;"
 diff --git a/include/configs/ls1043a_common.h b/include/configs/ls1043a_common.h
-index 15ff96f6a9..ba27810113 100644
+index 1670476ec3..1dfcc061d4 100644
 --- a/include/configs/ls1043a_common.h
 +++ b/include/configs/ls1043a_common.h
-@@ -304,8 +304,15 @@
+@@ -310,8 +310,15 @@
  #ifdef CONFIG_TFABOOT
  #define QSPI_NOR_BOOTCOMMAND "run distro_bootcmd; run qspi_bootcmd; "	\
  			   "env exists secureboot && esbc_halt;"
