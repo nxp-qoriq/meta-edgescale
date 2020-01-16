@@ -8,26 +8,18 @@ LICENSE = "MIT"
 
 #set DISTRO_FEATURES_append = " ota edgescale" in local.config
 
+EDS = "${@bb.utils.contains('DISTRO_FEATURES', 'edgescale', 'packagegroup-edgescale', '', d)}"
 IMA_EVM = "${@bb.utils.contains('DISTRO_FEATURES', 'ima-evm', 'ima-evm', '', d)}"
 
 IMAGE_INSTALL_append = " \
     start-stop-daemon \
-    dhcpcd \
-    edgescale-eds \
-    edgescale-eds-solution \
-    eds-bootstrap \
-    eds-kubelet \
     bash \
     coreutils \
-    curl \
     mosquitto \
     net-tools \
     util-linux-fdisk \
     util-linux-lsblk \
     dosfstools \
-    e2fsprogs \
-    e2fsprogs-e2fsck \
-    e2fsprogs-mke2fs \
     file \
     packagegroup-core-ssh-openssh \
     tar \
@@ -37,12 +29,10 @@ IMAGE_INSTALL_append = " \
     kernel-modules \
     openssl-qoriq-bin \
     rng-tools \
-    ethtool \
     dhcp-client \
     curl \
-    docker \
-    docker-registry \  
     ${IMA_EVM} \
+    ${EDS} \
 "
 
 IMAGE_INSTALL_append_ls1012a = " \
@@ -50,10 +40,10 @@ IMAGE_INSTALL_append_ls1012a = " \
     ppfe-firmware \
 "
 
-EXTRA_IMAGEDEPENDS += " secure-boot-qoriq"
+EXTRA_IMAGEDEPENDS_qoriq += " secure-boot-qoriq"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
-IMAGE_FSTYPES = "tar.gz ext2.gz ext2.gz.u-boot"
+IMAGE_FSTYPES_qoriq = "tar.gz ext2.gz ext2.gz.u-boot"
 
 inherit remove-files
 ROOTFS_POSTPROCESS_COMMAND_append_ls1012a = "rootfs_delete_files;"
