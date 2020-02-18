@@ -103,26 +103,27 @@ setup_ima_evm(){
 }
 
 download_images(){
-	count=1
-	while [ $count -le 5 ]
-	do
-		wget -O /run/media/mmcblk1p3/full_images.tgz -c $imageURL
-		if [ $? != 0 ];then
-			((count++))
-			echo "retrying $count times"
-			sleep 5
-		else
-			break
-		fi
-	done
-
-	if [ $count -gt 5 ];then
-		reboot
+	download_path=/run/media/mmcblk1p3/updateImages
+	if [ ! -d ${download_path} ];then
+		mkdir -p ${download_path}
+	fi
+	wget -O ${download_path}/full_images.tgz -c $imageURL -t 0 -T 300
+	if [ $? != 0 ];then
+		echo "Connection timeout"
+		sleep 5
+		reboot -f
+	else
+		return 0
 	fi
 }
 
 install_images(){
-	cd /run/media/mmcblk1p3/
+	download_path=/run/media/mmcblk1p3/updateImages
+	docker_path=/run/media/mmcblk1p3/docker
+	if [ ! -d ${docker_path} ];then
+		mkdir -p ${docker_path}
+	fi
+	cd ${download_path}
 	tar zvxf $tgz_file
 
 	if [ ! -f "install.sh" ];then
@@ -198,7 +199,7 @@ elif [ "$updateStatus"x == 4x ];then
 	echo "Now need to install the image version=$newimageVersion"
 	imageVersion=$newimageVersion
 	mount_partition
-	tgz_file="full_images.tgz"
+	tgz_file="full_images_deploy.tgz"
 	install_images
 	umount_partition
 	updateStatus=1
