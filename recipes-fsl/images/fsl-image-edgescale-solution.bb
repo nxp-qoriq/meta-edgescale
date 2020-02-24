@@ -6,7 +6,7 @@ NXP-specific packages."
 
 LICENSE = "MIT"
 
-#set DISTRO_FEATURES_append = " ota edgescale" in local.config
+#set DISTRO_FEATURES_append = " edgescale" in local.config
 
 EDS = "${@bb.utils.contains('DISTRO_FEATURES', 'edgescale', 'packagegroup-edgescale', '', d)}"
 IMA_EVM = "${@bb.utils.contains('DISTRO_FEATURES', 'ima-evm', 'ima-evm', '', d)}"

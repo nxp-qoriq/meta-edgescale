@@ -20,7 +20,7 @@ inherit deploy  perlnative
 
 #set ROOTFS_IMAGE = "fsl-image-edgescale" in local.conf
 #set KERNEL_ITS = "kernel-all.its" in local.conf
-#set DISTRO_FEATURES += " ota singleboot" in local.conf 
+#set DISTRO_FEATURES += "  singleboot" in local.conf 
 ITB_IMAGE = "fsl-image-kernelitb"
 ITB_IMAGE_ls1021atwr = "fsl-image-edgescale"
 DEPENDS = "u-boot-mkimage-native cst-native"
