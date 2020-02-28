@@ -67,6 +67,6 @@ distroboot_ima=\
 
 
 # [secure boot scripts in cst]
-xspi_script=scripts/platforms/ls1028_secboot_hdr.sh
-sd_script=scripts/platforms/ls1028_secboot_hdr.sh
-emmc_script=scripts/platforms/ls1028_secboot_hdr.sh
+xspi_script=platforms/ls1028_secboot_hdr.sh
+sd_script=platforms/ls1028_secboot_hdr.sh
+emmc_script=platforms/ls1028_secboot_hdr.sh
