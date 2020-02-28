@@ -103,7 +103,7 @@ secure_sign_image() {
     fi
 
 
-    cp $TOPDIR/secboot_hdrs_${BOOTTYPE}boot.bin $DEPLOYDIR/secboot_hdrs/
+    #cp $TOPDIR/secboot_hdrs_${BOOTTYPE}boot.bin $DEPLOYDIR/secboot_hdrs/
     if [  "$MACHINE"  = "ls1028ardb" ] ; then
           cp $TOPDIR/secboot_hdrs.bin $DEPLOYDIR/secboot_hdrs/secboot_hdrs_${BOOTTYPE}boot.bin
     else
